@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Edit Product{% endblock %}
+
+{% block content %}
+    <h3>Edit Product</h3>
+
+    <form method="POST" class="row g-2" enctype="multipart/form-data">
+    <div class="col-md-6">
+        <label>Name</label>
+        <input name="name" value="{{ product.name }}" class="form-control">
+    </div>
+
+    <div class="col-md-3">
+        <label>Price</label>
+        <input name="price" value="{{ product.price }}" class="form-control">
+    </div>
+
+    <div class="col-md-3">
+        <label>Stock</label>
+        <input name="stock" value="{{ product.stock }}" class="form-control">
+    </div>
+
+    <div class="col-md-6">
+        <label>Category</label>
+        <select name="category_id" class="form-control">
+        {% for c in categories %}
+            <option value="{{ c.id }}" {% if c.id == product.category_id %}selected{% endif %}>
+            {{ c.name }}
+            </option>
+        {% endfor %}
+        </select>
+    </div>
+
+    <div class="col-md-6">
+        <label>Condition</label>
+        <select name="condition" class="form-control">
+        <option {% if product.condition_type == 'Brand New' %}selected{% endif %}>Brand New</option>
+        <option {% if product.condition_type == 'Preloved' %}selected{% endif %}>Preloved</option>
+        </select>
+    </div>
+
+    <div class="col-md-6">
+        <label class="form-label">Product Image</label>
+
+        {% if product.image %}
+            <div class="mb-2">
+            <img src="{{ url_for('static', filename='uploads/products/' ~ product.image) }}"
+                class="img-thumbnail"
+                width="150"
+                style="object-fit: cover;">
+            </div>
+        {% else %}
+            <div class="mb-2 text-muted">
+            <em>No image uploaded</em>
+            </div>
+        {% endif %}
+
+        <input type="file" name="image" class="form-control">
+        <small class="text-muted">
+            Leave empty to keep current image
+        </small>
+        </div>
+
+
+    <div class="col-md-12">
+        <label>Description</label>
+        <textarea name="description" class="form-control">{{ product.description }}</textarea>
+    </div>
+
+    <div class="col-md-12">
+        <button class="btn btn-dark">Update</button>
+        <a href="/admin/products" class="btn btn-secondary">Cancel</a>
+    </div>
+    </form>
+{% endblock %}

@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% block title %}My Orders{% endblock %}
+
+{% block content %}
+<h3 class="mb-3">📦 My Orders</h3>
+
+<!-- Status Tabs -->
+<ul class="nav nav-tabs mb-3">
+
+    <li class="nav-item">
+        <a class="nav-link {% if status == 'Pending' %}active{% endif %}"
+           href="{{ url_for('orders', status='Pending') }}">
+            Pending
+            <span class="badge bg-secondary ms-1">
+                {{ counts.Pending }}
+            </span>
+        </a>
+    </li>
+
+    <li class="nav-item">
+        <a class="nav-link {% if status == 'Shipped' %}active{% endif %}"
+           href="{{ url_for('orders', status='Shipped') }}">
+            Shipped
+            <span class="badge bg-secondary ms-1">
+                {{ counts.Shipped }}
+            </span>
+        </a>
+    </li>
+
+    <li class="nav-item">
+        <a class="nav-link {% if status == 'Delivered' %}active{% endif %}"
+           href="{{ url_for('orders', status='Delivered') }}">
+            Delivered
+            <span class="badge bg-secondary ms-1">
+                {{ counts.Delivered }}
+            </span>
+        </a>
+    </li>
+
+</ul>
+
+
+{% if orders %}
+<table class="table table-bordered align-middle">
+    <thead class="table-dark">
+        <tr>
+            <th>Order #</th>
+            <th>Date</th>
+            <th>Payment</th>
+            <th>Status</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for o in orders %}
+        <tr>
+            <td>#{{ o.id }}</td>
+            <td>{{ o.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+            <td>{{ o.payment_method }}</td>
+            <td>
+                <span class="badge
+                    {% if o.status == 'Pending' %}bg-warning
+                    {% elif o.status == 'Shipped' %}bg-info
+                    {% else %}bg-success{% endif %}">
+                    {{ o.status }}
+                </span>
+            </td>
+            <td>
+                <a href="{{ url_for('order_details', id=o.id) }}"
+                   class="btn btn-sm btn-outline-dark">
+                    View
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<!-- Pagination -->
+<nav>
+    <ul class="pagination justify-content-center">
+
+        {% if page > 1 %}
+        <li class="page-item">
+            <a class="page-link"
+               href="{{ url_for('orders', status=status, page=page-1) }}">
+                Previous
+            </a>
+        </li>
+        {% endif %}
+
+        {% for p in range(1, total_pages + 1) %}
+        <li class="page-item {% if p == page %}active{% endif %}">
+            <a class="page-link"
+               href="{{ url_for('orders', status=status, page=p) }}">
+                {{ p }}
+            </a>
+        </li>
+        {% endfor %}
+
+        {% if page < total_pages %}
+        <li class="page-item">
+            <a class="page-link"
+               href="{{ url_for('orders', status=status, page=page+1) }}">
+                Next
+            </a>
+        </li>
+        {% endif %}
+
+    </ul>
+</nav>
+
+{% else %}
+<div class="alert alert-info">
+    No {{ status }} orders found.
+</div>
+{% endif %}
+{% endblock %}
+

@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block title %}Cart{% endblock %}
+
+{% block content %}
+<h3>🛒 Your Cart</h3>
+
+<form method="POST" action="{{ url_for('checkout') }}" enctype="multipart/form-data">
+    <table class="table table-bordered">
+        <thead class="table-dark">
+            <tr>
+                <th>Select</th>
+                <th>Product</th>
+                <th>Qty</th>
+                <th>Price</th>
+                <th>Subtotal</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+            <tr>
+                <td class="text-center">
+                    {% if item.stock > 0 %}
+                        <input type="checkbox"
+                            name="selected_items"
+                            value="{{ item.id }}"
+                            checked
+                            class="select-item"
+                            data-subtotal="{{ item.subtotal }}">
+                    {% else %}
+                        <span class="badge bg-danger">Sold Out</span>
+                    {% endif %}
+                </td>
+                <td>{{ item.name }}</td>
+                <td>
+                    <input type="number" name="quantity_{{ item.id }}"
+                        value="{{ item.quantity }}"
+                        min="1"
+                        class="form-control form-control-sm w-50"
+                        {% if item.stock == 0 %} disabled {% endif %}>
+                </td>
+                <td>₱{{ item.price }}</td>
+                <td>₱{{ item.subtotal }}</td>
+                <td>
+                    <a href="{{ url_for('remove_from_cart', id=item.id) }}"
+                    class="btn btn-sm btn-danger">Remove</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h4>Total: ₱<span id="total">{{ total }}</span></h4>
+
+    <select name="payment_method" id="payment_method" class="form-select mb-3" required>
+        <option value="">Select Payment Method</option>
+        <option value="Cash on Delivery">Cash on Delivery</option>
+        <option value="Online Payment">Online Payment</option>
+    </select>
+
+    <div id="proof_section" class="mb-3" style="display:none;">
+        <label class="form-label">Upload Proof of Payment</label>
+        <input type="file" name="payment_proof" class="form-control" accept="image/*">
+    </div>
+
+    <button class="btn btn-success">Place Order</button>
+</form>
+
+
+<script>
+document.getElementById('payment_method').addEventListener('change', function () {
+    document.getElementById('proof_section').style.display =
+        this.value === 'Online Payment' ? 'block' : 'none';
+});
+
+function updateTotal() {
+    let total = 0;
+    document.querySelectorAll('.select-item').forEach(cb => {
+        if (cb.checked) {
+            total += parseFloat(cb.dataset.subtotal);
+        }
+    });
+    document.getElementById('total').textContent = total.toFixed(2);
+}
+
+updateTotal();
+document.querySelectorAll('.select-item').forEach(cb => {
+    cb.addEventListener('change', updateTotal);
+});
+
+</script>
+
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Manage Users{% endblock %}
+
+{% block content %}
+<h3 class="mb-4">Users</h3>
+
+<table class="table table-bordered align-middle">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Email</th>
+      <th>Role</th>
+      <th>Status</th>
+      <th width="300">Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for u in users %}
+    <tr>
+      <td>{{ u.fullname }}</td>
+      <td>{{ u.email }}</td>
+      <td>{{ u.role }}</td>
+      <td>
+        {% if u.is_active %}
+          <span class="badge bg-success">Active</span>
+        {% else %}
+          <span class="badge bg-danger">Inactive</span>
+        {% endif %}
+      </td>
+      <td>
+
+        <!-- Reset Password -->
+        <form method="POST"
+              action="/admin/users/reset-password/{{ u.id }}"
+              class="d-inline">
+          <input type="password"
+                 name="password"
+                 placeholder="New password"
+                 class="form-control form-control-sm d-inline w-50"
+                 required>
+          <button class="btn btn-warning btn-sm">Reset</button>
+        </form>
+
+        <!-- Activate / Deactivate -->
+        <a href="/admin/users/toggle/{{ u.id }}"
+           class="btn btn-sm btn-secondary ms-2">
+           {% if u.is_active %}Deactivate{% else %}Activate{% endif %}
+        </a>
+
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Manage Categories{% endblock %}
+
+{% block content %}
+<h3 class="mb-3">Manage Categories</h3>
+
+<!-- ADD CATEGORY -->
+<div class="card mb-4">
+<div class="card-body">
+<form method="POST" class="d-flex gap-2">
+    <input name="name" class="form-control" placeholder="Category name" required>
+    <button class="btn btn-dark">Add</button>
+</form>
+</div>
+</div>
+
+<!-- CATEGORY TABLE -->
+<div class="card">
+<div class="card-body">
+<table class="table table-bordered">
+<thead>
+<tr>
+    <th>Name</th>
+    <th>Products</th>
+    <th width="180">Actions</th>
+</tr>
+</thead>
+<tbody>
+
+{% for c in categories %}
+<tr>
+    <td>
+        <form method="POST" action="/admin/categories/edit/{{ c.id }}" class="d-flex gap-2">
+            <input name="name" class="form-control form-control-sm" value="{{ c.name }}">
+            <button class="btn btn-sm btn-warning">Update</button>
+        </form>
+    </td>
+    <td>
+        <span class="badge bg-secondary">{{ c.total_products }}</span>
+    </td>
+    <td>
+        {% if c.total_products == 0 %}
+        <a href="/admin/categories/delete/{{ c.id }}"
+           class="btn btn-sm btn-danger"
+           onclick="return confirm('Delete this category?')">
+            Delete
+        </a>
+        {% else %}
+        <span class="text-muted">Not Empty</span>
+        {% endif %}
+    </td>
+</tr>
+{% endfor %}
+
+</tbody>
+</table>
+</div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}Inventory Management{% endblock %}
+
+{% block content %}
+<h3 class="mb-3">Inventory Management</h3>
+
+<!-- INVENTORY BUTTON -->
+<button class="btn btn-dark mb-3" data-bs-toggle="modal" data-bs-target="#inventoryModal">
+    ➕ Manage Inventory
+</button>
+
+<!-- INVENTORY LOG TABLE -->
+<div class="card">
+<div class="card-body">
+<table class="table table-bordered table-hover">
+    <thead>
+    <tr>
+        <th>Date</th>
+        <th>Product</th>
+        <th>Action</th>
+        <th>Qty</th>
+        <th>Previous Stock</th>
+        <th>New Stock</th>
+        <th>Remarks</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for l in logs %}
+    <tr>
+        <td>{{ l.created_at }}</td>
+        <td>{{ l.name }}</td>
+        <td>
+            <span class="badge
+                {% if l.change_type == 'ADD' %}bg-success
+                {% elif l.change_type == 'REMOVE' %}bg-danger
+                {% else %}bg-warning text-dark{% endif %}">
+                {{ l.change_type }}
+            </span>
+        </td>
+        <td>{{ l.quantity }}</td>
+        <td>{{ l.previous_stock }}</td>
+        <td>{{ l.new_stock }}</td>
+        <td>{{ l.remarks }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+</div>
+</div>
+
+<!-- INVENTORY MODAL -->
+<div class="modal fade" id="inventoryModal" tabindex="-1">
+<div class="modal-dialog">
+<div class="modal-content">
+
+<form method="POST">
+
+    <div class="modal-header">
+        <h5 class="modal-title">Manage Inventory</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    </div>
+
+    <div class="modal-body">
+
+        <div class="mb-2">
+            <label class="form-label">Product</label>
+            <select name="product_id" class="form-control" required>
+                {% for p in products %}
+                <option value="{{ p.id }}">{{ p.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="mb-2">
+            <label class="form-label">Action</label>
+            <select name="change_type" class="form-control">
+                <option value="ADD">Add Stock</option>
+                <option value="REMOVE">Remove Stock</option>
+                <option value="ADJUST">Set Stock</option>
+            </select>
+        </div>
+
+        <div class="mb-2">
+            <label class="form-label">Quantity</label>
+            <input type="number" name="quantity" class="form-control" required>
+        </div>
+
+        <div class="mb-2">
+            <label class="form-label">Remarks</label>
+            <input type="text" name="remarks" class="form-control" placeholder="Optional">
+        </div>
+
+    </div>
+
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary">Save</button>
+    </div>
+
+</form>
+
+</div>
+</div>
+</div>
+
+{% endblock %}

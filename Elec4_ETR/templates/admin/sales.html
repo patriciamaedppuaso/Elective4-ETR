@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Sales Reports{% endblock %}
+
+{% block content %}
+<h3 class="mb-3">Sales Reports</h3>
+
+<div class="mb-3">
+  <a href="?type=daily" class="btn btn-outline-dark btn-sm">Daily</a>
+  <a href="?type=weekly" class="btn btn-outline-dark btn-sm">Weekly</a>
+  <a href="?type=monthly" class="btn btn-outline-dark btn-sm">Monthly</a>
+
+  <a href="{{ url_for('export_sales', type=report_type, format='pdf') }}"
+     class="btn btn-danger btn-sm float-end ms-2">
+     Export PDF
+  </a>
+
+  <a href="{{ url_for('export_sales', type=report_type, format='docx') }}"
+     class="btn btn-primary btn-sm float-end">
+     Export DOC
+  </a>
+</div>
+
+<table class="table table-bordered">
+  <thead class="table-dark">
+    <tr>
+      <th>Period</th>
+      <th>Total Orders</th>
+      <th>Total Sales (₱)</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for r in reports %}
+    <tr>
+        <td>{{ r.period }}</td>
+        <td>{{ r.total_orders }}</td>
+        <td>₱{{ "%.2f"|format(r.total_sales or 0) }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+
+</table>
+{% endblock %}

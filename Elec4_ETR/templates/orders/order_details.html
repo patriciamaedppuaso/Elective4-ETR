@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block title %}Order Details{% endblock %}
+
+{% block content %}
+<h3>🧾 Order #{{ order.id }}</h3>
+
+<p>
+    <strong>Status:</strong>
+    <span class="badge bg-secondary">{{ order.status }}</span><br>
+    <strong>Payment:</strong> {{ order.payment_method }}<br>
+    <strong>Date:</strong> {{ order.created_at }}
+</p>
+
+{% if order.payment_method == 'Online Payment' and order.payment_proof %}
+<div class="card mb-4">
+    <div class="card-header bg-light">
+        <strong>Proof of Payment</strong>
+    </div>
+    <div class="card-body text-center">
+        <img src="{{ url_for('static',
+            filename='uploads/payments/' ~ order.payment_proof) }}"
+             class="img-fluid rounded border"
+             style="max-width: 350px;">
+        <p class="text-muted mt-2">Click image to zoom</p>
+    </div>
+</div>
+{% endif %}
+
+<table class="table table-bordered">
+    <thead class="table-light">
+        <tr>
+            <th>Camera</th>
+            <th>Qty</th>
+            <th>Price</th>
+            <th>Subtotal</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for i in items %}
+            {% set subtotal = i.quantity * i.price %}
+            <tr>
+                <td>{{ i.name }}</td>
+                <td>{{ i.quantity }}</td>
+                <td>₱{{ i.price }}</td>
+                <td>₱{{ subtotal }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h4>Total: ₱{{ total }}</h4>
+
+<a href="{{ url_for('orders') }}" class="btn btn-secondary mt-3">
+    Back to Orders
+</a>
+{% endblock %}

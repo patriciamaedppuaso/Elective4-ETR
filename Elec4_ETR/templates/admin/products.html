@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block title %}Manage Products{% endblock %}
+
+{% block content %}
+    <h3 class="mb-3">Manage Products</h3>
+    <!-- ADD PRODUCT FORM -->
+    <div class="card mb-4">
+    <div class="card-body">
+        <form method="POST" enctype="multipart/form-data" class="row g-2">
+        <div class="col-md-3">
+            <input name="name" class="form-control" placeholder="Product Name" required>
+        </div>
+        <div class="col-md-2">
+            <input name="price" type="number" class="form-control" placeholder="Price" required>
+        </div>
+        <div class="col-md-2">
+            <input name="stock" type="number" class="form-control" placeholder="Stock" required>
+        </div>
+        <div class="col-md-2">
+            <select name="condition" class="form-control">
+            <option>Brand New</option>
+            <option>Preloved</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <select name="category_id" class="form-control">
+            {% for c in categories %}
+                <option value="{{ c.id }}">{{ c.name }}</option>
+            {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <input type="file" name="image" class="form-control">
+        </div>
+        <div class="col-md-12">
+            <textarea name="description" class="form-control" placeholder="Description"></textarea>
+        </div>
+        <div class="col-md-12">
+            <button class="btn btn-dark btn-sm">Add Product</button>
+        </div>
+        </form>
+    </div>
+    </div>
+
+    <form method="GET" class="mb-3">
+        <select name="category" class="form-control w-25 d-inline">
+            <option value="">All Categories</option>
+            {% for c in categories %}
+            <option value="{{ c.id }}"
+                {% if selected_category == c.id|string %}selected{% endif %}>
+                {{ c.name }}
+            </option>
+            {% endfor %}
+        </select>
+        <button class="btn btn-secondary btn-sm">Filter</button>
+    </form>
+    <a href="/admin/inventory"
+        class="btn btn-sm btn-info">
+        Manage Inventory
+    </a>
+
+    <a href="/admin/categories"
+        class="btn btn-sm btn-info">
+        Manage Categories
+    </a>
+
+    <!-- PRODUCT TABLE -->
+    <table class="table table-bordered">
+    <thead>
+        <tr>
+        <th width="80">Image</th>
+        <th>Name</th>
+        <th>Price</th>
+        <th>Stock</th>
+        <th>Condition</th>
+        <th>Category</th>
+        <th width="140">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for p in products %}
+        <tr class="{% if p.stock == 0 %}table-danger{% elif p.stock <= 5 %}table-warning{% endif %}">
+        <td>
+            {% if p.image %}
+                <img src="{{ url_for('static', filename='uploads/products/' ~ p.image) }}"
+                    width="60" height="60"
+                    class="img-thumbnail"
+                    style="object-fit: cover;">
+            {% else %}
+                <span class="text-muted">No Image</span>
+            {% endif %}
+        </td>    
+        <td>{{ p.name }}</td>
+        <td>₱{{ p.price }}</td>
+        <td>
+            {% if p.stock == 0 %}
+                <span class="badge bg-danger">Out of Stock</span>
+            {% elif p.stock <= 5 %}
+                <span class="badge bg-warning text-dark">
+                Low ({{ p.stock }})
+                </span>
+            {% else %}
+                <span class="badge bg-success">
+                {{ p.stock }}
+                </span>
+            {% endif %}
+        </td>
+        <td>{{ p.condition_type }}</td>
+        <td>{{ p.category }}</td>
+        <td>
+    
+            <a href="/admin/products/edit/{{ p.id }}" class="btn btn-sm btn-warning">Edit</a>
+            <a href="/admin/products/delete/{{ p.id }}"
+            class="btn btn-sm btn-danger"
+            onclick="return confirm('Delete this product?')">
+            Delete
+            </a>
+        </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+    </table>
+{% endblock %}
