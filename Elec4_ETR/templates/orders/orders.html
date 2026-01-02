@@ -4,16 +4,42 @@
 {% block css %}
 <style>
     .orders-header {
-        background: linear-gradient(135deg, var(--teal), var(--burnt-orange));
+        background: 
+            repeating-linear-gradient(45deg, var(--teal) 0%, #16A085 50%, var(--teal) 100%),
+            linear-gradient(135deg, var(--teal), var(--burnt-orange));
+        background-size: 30px 30px, 100%;
         color: white;
-        padding: 40px 0;
+        padding: 50px 0;
         margin: -30px -15px 30px -15px;
-        border-radius: 0 0 20px 20px;
+        border-radius: 0;
+        border-bottom: 6px double var(--dark-gray);
+        position: relative;
+    } 
+    .orders-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: repeating-linear-gradient(90deg, var(--mustard-yellow) 0%, var(--mustard-yellow) 10px, transparent 10px, transparent 20px);
     }
     .orders-header h3 {
         color: white;
-        font-size: 2.5rem;
+        font-size: 3.5rem;
         margin: 0;
+        font-family: 'Bebas Neue', 'Oswald', sans-serif;
+        text-transform: uppercase;
+        letter-spacing: 4px;
+        text-shadow: 3px 3px 0px var(--dark-gray);
+        position: relative;
+    }
+    .orders-header h3::before,
+    .orders-header h3::after {
+        content: '❋';
+        color: var(--mustard-yellow);
+        font-size: 2rem;
+        margin: 0 20px;
     }
     .orders-container {
         background-color: white;
@@ -27,7 +53,7 @@
 {% block content %}
 <div class="orders-header text-center">
     <div class="container">
-        <h3>📦 My Orders</h3>
+        <h3>My Orders</h3>
         <p class="mt-2">Track your camera purchases</p>
     </div>
 </div>

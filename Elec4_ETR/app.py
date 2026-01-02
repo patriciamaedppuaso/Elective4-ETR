@@ -554,27 +554,60 @@ def admin_products():
         mysql.connection.commit()
         flash("Product added successfully", "success")
 
-    # FILTER
+    # FILTER AND SEARCH
     category_filter = request.args.get('category')
+    search_query = request.args.get('search', '').strip()
+    condition_filter = request.args.get('condition', '')
+    brand_filter = request.args.get('brand', '')
+    stock_status = request.args.get('stock_status', '')
+
+    # Build query with filters
+    base_query = """
+        SELECT p.*, c.name AS category
+        FROM products p
+        JOIN categories c ON p.category_id = c.id
+        WHERE 1=1
+    """
+    params = []
 
     if category_filter:
-        cur.execute("""
-            SELECT p.*, c.name AS category
-            FROM products p
-            JOIN categories c ON p.category_id = c.id
-            WHERE c.id = %s
-        """, (category_filter,))
+        base_query += " AND c.id = %s"
+        params.append(category_filter)
+
+    if search_query:
+        base_query += " AND p.name LIKE %s"
+        params.append(f"%{search_query}%")
+
+    if condition_filter:
+        base_query += " AND p.condition_type = %s"
+        params.append(condition_filter)
+
+    if brand_filter:
+        base_query += " AND p.brand = %s"
+        params.append(brand_filter)
+
+    if stock_status == 'available':
+        base_query += " AND p.stock > 0"
+    elif stock_status == 'soldout':
+        base_query += " AND p.stock = 0"
+    elif stock_status == 'low':
+        base_query += " AND p.stock > 0 AND p.stock <= 5"
+
+    base_query += " ORDER BY p.id DESC"
+
+    if params:
+        cur.execute(base_query, params)
     else:
-        cur.execute("""
-            SELECT p.*, c.name AS category
-            FROM products p
-            JOIN categories c ON p.category_id = c.id
-        """)
+        cur.execute(base_query)
 
     products = cur.fetchall()
 
     cur.execute("SELECT * FROM categories")
     categories = cur.fetchall()
+
+    # Get brands for filter
+    cur.execute("SELECT DISTINCT brand FROM products WHERE brand IS NOT NULL")
+    brands = cur.fetchall()
 
     cur.close()
 
@@ -582,7 +615,12 @@ def admin_products():
         'admin/products.html',
         products=products,
         categories=categories,
-        selected_category=category_filter
+        brands=brands,
+        selected_category=category_filter,
+        search_query=search_query,
+        condition_filter=condition_filter,
+        brand_filter=brand_filter,
+        stock_status=stock_status
     )
 
 
@@ -787,18 +825,39 @@ def admin_orders():
         flash("Unauthorized access", "danger")
         return redirect(url_for('home'))
 
+    search_query = request.args.get('search', '').strip()
+    status_filter = request.args.get('status', '')
+
     cur = mysql.connection.cursor()
-    cur.execute("""
+    
+    base_query = """
         SELECT o.*, u.fullname AS customer_name
         FROM orders o
         JOIN users u ON o.user_id = u.id
         WHERE o.status IN ('Pending','Approved','Declined')
-        ORDER BY o.created_at DESC
-    """)
+    """
+    params = []
+
+    if search_query:
+        base_query += " AND (u.fullname LIKE %s OR o.id LIKE %s)"
+        params.append(f"%{search_query}%")
+        params.append(f"%{search_query}%")
+
+    if status_filter:
+        base_query += " AND o.status = %s"
+        params.append(status_filter)
+
+    base_query += " ORDER BY o.created_at DESC"
+
+    if params:
+        cur.execute(base_query, params)
+    else:
+        cur.execute(base_query)
+    
     orders = cur.fetchall()
     cur.close()
 
-    return render_template('admin/orders.html', orders=orders)
+    return render_template('admin/orders.html', orders=orders, search_query=search_query, status_filter=status_filter)
 
 @app.route('/admin/order/approve/<int:id>')
 def approve_order(id):
@@ -938,10 +997,41 @@ def admin_users():
     if session.get('role') != 'admin':
         return redirect('/login')
 
+    search_query = request.args.get('search', '').strip()
+    role_filter = request.args.get('role', '')
+    status_filter = request.args.get('status', '')
+
     cur = mysql.connection.cursor()
-    cur.execute("SELECT id, fullname, email, role, is_active FROM users")
+    
+    base_query = "SELECT id, fullname, email, role, is_active FROM users WHERE 1=1"
+    params = []
+
+    if search_query:
+        base_query += " AND (fullname LIKE %s OR email LIKE %s)"
+        params.append(f"%{search_query}%")
+        params.append(f"%{search_query}%")
+
+    if role_filter:
+        base_query += " AND role = %s"
+        params.append(role_filter)
+
+    if status_filter:
+        if status_filter == 'active':
+            base_query += " AND is_active = 1"
+        elif status_filter == 'inactive':
+            base_query += " AND is_active = 0"
+
+    base_query += " ORDER BY id DESC"
+
+    if params:
+        cur.execute(base_query, params)
+    else:
+        cur.execute(base_query)
+    
     users = cur.fetchall()
-    return render_template('admin/users.html', users=users)
+    cur.close()
+    
+    return render_template('admin/users.html', users=users, search_query=search_query, role_filter=role_filter, status_filter=status_filter)
 
 @app.route('/admin/users/reset-password/<int:user_id>', methods=['POST'])
 def reset_user_password(user_id):

@@ -34,6 +34,12 @@
 
 <div class="container">
 <div class="admin-container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 style="color: var(--teal);">All Orders</h4>
+        <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#searchModal">
+            Search
+        </button>
+    </div>
 <div class="table-responsive">
 <table class="table table-bordered align-middle">
   <thead class="table-dark">
@@ -155,6 +161,44 @@
   </div>
 </div>
 {% endfor %}
+</div>
+</div>
+
+<!-- Search & Filter Modal -->
+<div class="modal fade" id="searchModal" tabindex="-1" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title" id="searchModalLabel">
+                    Search & Filter Orders
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="GET" action="{{ url_for('admin_orders') }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label"><strong>Search</strong></label>
+                        <input type="text" name="search" class="form-control" placeholder="Search by customer name or order ID..." value="{{ search_query or '' }}">
+                        <small class="text-muted">Search orders by customer name or order number</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label"><strong>Status</strong></label>
+                        <select name="status" class="form-control">
+                            <option value="">All Statuses</option>
+                            <option value="Pending" {% if status_filter == 'Pending' %}selected{% endif %}>Pending</option>
+                            <option value="Approved" {% if status_filter == 'Approved' %}selected{% endif %}>Approved</option>
+                            <option value="Declined" {% if status_filter == 'Declined' %}selected{% endif %}>Declined</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a href="{{ url_for('admin_orders') }}" class="btn btn-secondary">Clear Filters</a>
+                    <button type="submit" class="btn btn-primary">Apply Filters</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 </div>
 </div>
 {% endblock %}

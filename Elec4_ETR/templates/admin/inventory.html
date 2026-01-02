@@ -36,9 +36,48 @@
 <div class="container">
 <div class="admin-container">
 <!-- INVENTORY BUTTON -->
-<button class="btn btn-primary mb-4" data-bs-toggle="modal" data-bs-target="#inventoryModal">
-    ➕ Manage Inventory
+<button class="btn btn-primary mb-4" type="button" data-bs-toggle="collapse" data-bs-target="#inventoryForm" aria-expanded="false" aria-controls="inventoryForm">
+    Manage Inventory
 </button>
+
+<!-- Inventory Form (Collapsible) -->
+<div class="collapse mb-4" id="inventoryForm">
+    <div class="card card-body" style="background-color: #f8f9fa; border: 2px solid var(--teal);">
+        <h5 class="mb-3" style="color: var(--teal);">Manage Inventory</h5>
+        <form method="POST">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label"><strong>Product</strong></label>
+                    <select name="product_id" class="form-control" required>
+                        {% for p in products %}
+                        <option value="{{ p.id }}">{{ p.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label"><strong>Action</strong></label>
+                    <select name="change_type" class="form-control">
+                        <option value="ADD">Add Stock</option>
+                        <option value="REMOVE">Remove Stock</option>
+                        <option value="ADJUST">Set Stock</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label"><strong>Quantity</strong></label>
+                    <input type="number" name="quantity" class="form-control" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label"><strong>Remarks</strong></label>
+                    <input type="text" name="remarks" class="form-control" placeholder="Optional notes...">
+                </div>
+                <div class="col-md-12">
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                    <button type="button" class="btn btn-secondary" data-bs-toggle="collapse" data-bs-target="#inventoryForm">Cancel</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
 
 <!-- INVENTORY LOG TABLE -->
 <div class="table-responsive">
@@ -79,59 +118,5 @@
 </div>
 </div>
 
-<!-- INVENTORY MODAL -->
-<div class="modal fade" id="inventoryModal" tabindex="-1">
-<div class="modal-dialog modal-dialog-centered">
-<div class="modal-content">
-
-<form method="POST">
-
-    <div class="modal-header bg-primary text-white">
-        <h5 class="modal-title">Manage Inventory</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-    </div>
-
-    <div class="modal-body">
-
-        <div class="mb-3">
-            <label class="form-label"><strong>Product</strong></label>
-            <select name="product_id" class="form-control" required>
-                {% for p in products %}
-                <option value="{{ p.id }}">{{ p.name }}</option>
-                {% endfor %}
-            </select>
-        </div>
-
-        <div class="mb-3">
-            <label class="form-label"><strong>Action</strong></label>
-            <select name="change_type" class="form-control">
-                <option value="ADD">Add Stock</option>
-                <option value="REMOVE">Remove Stock</option>
-                <option value="ADJUST">Set Stock</option>
-            </select>
-        </div>
-
-        <div class="mb-3">
-            <label class="form-label"><strong>Quantity</strong></label>
-            <input type="number" name="quantity" class="form-control" required>
-        </div>
-
-        <div class="mb-3">
-            <label class="form-label"><strong>Remarks</strong></label>
-            <input type="text" name="remarks" class="form-control" placeholder="Optional notes...">
-        </div>
-
-    </div>
-
-    <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button class="btn btn-primary">Save Changes</button>
-    </div>
-
-</form>
-
-</div>
-</div>
-</div>
 
 {% endblock %}

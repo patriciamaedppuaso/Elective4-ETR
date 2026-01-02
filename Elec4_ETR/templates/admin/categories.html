@@ -34,18 +34,32 @@
 </div>
 
 <div class="container">
-<!-- ADD CATEGORY -->
-<div class="admin-container">
-    <h4 class="mb-3" style="color: var(--teal);">Add New Category</h4>
-    <form method="POST" class="d-flex gap-2">
-        <input name="name" class="form-control" placeholder="Category name (e.g., Film Cameras, Digital Cameras)" required>
-        <button class="btn btn-primary">Add Category</button>
-    </form>
-</div>
-
 <!-- CATEGORY TABLE -->
 <div class="admin-container">
-    <h4 class="mb-3" style="color: var(--teal);">All Categories</h4>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 style="color: var(--teal);">All Categories</h4>
+        <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#addCategoryForm" aria-expanded="false" aria-controls="addCategoryForm">
+            Add New Category
+        </button>
+    </div>
+
+    <!-- Add Category Form (Collapsible) -->
+    <div class="collapse mb-4" id="addCategoryForm">
+        <div class="card card-body" style="background-color: #f8f9fa; border: 2px solid var(--teal);">
+            <h5 class="mb-3" style="color: var(--teal);">Add New Category</h5>
+            <form method="POST">
+                <div class="row g-3">
+                    <div class="col-md-10">
+                        <label class="form-label"><strong>Category Name</strong></label>
+                        <input name="name" class="form-control" placeholder="e.g., Film Cameras, Digital Cameras" required>
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary w-100">Add</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
     <div class="table-responsive">
         <table class="table table-bordered">
         <thead class="table-dark">
@@ -59,25 +73,27 @@
 
         {% for c in categories %}
         <tr>
-            <td>
-                <form method="POST" action="/admin/categories/edit/{{ c.id }}" class="d-flex gap-2">
-                    <input name="name" class="form-control" value="{{ c.name }}">
-                    <button class="btn btn-sm btn-warning">Update</button>
-                </form>
-            </td>
+            <td><strong>{{ c.name }}</strong></td>
             <td>
                 <span class="badge bg-secondary">{{ c.total_products }}</span>
             </td>
             <td>
-                {% if c.total_products == 0 %}
-                <a href="/admin/categories/delete/{{ c.id }}"
-                   class="btn btn-sm btn-danger"
-                   onclick="return confirm('Delete this category?')">
-                    Delete
-                </a>
-                {% else %}
-                <span class="text-muted">Not Empty</span>
-                {% endif %}
+                <div class="d-flex gap-2">
+                    <button class="btn btn-sm btn-warning" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#editCategoryModal{{ c.id }}">
+                        Edit
+                    </button>
+                    {% if c.total_products == 0 %}
+                    <a href="/admin/categories/delete/{{ c.id }}"
+                       class="btn btn-sm btn-danger"
+                       onclick="return confirm('Delete this category?')">
+                        Delete
+                    </a>
+                    {% else %}
+                    <span class="text-muted small">Not Empty</span>
+                    {% endif %}
+                </div>
             </td>
         </tr>
         {% endfor %}
@@ -87,4 +103,33 @@
     </div>
 </div>
 </div>
+
+<!-- Edit Category Modals -->
+{% for c in categories %}
+<div class="modal fade" id="editCategoryModal{{ c.id }}" tabindex="-1" aria-labelledby="editCategoryModalLabel{{ c.id }}" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title" id="editCategoryModalLabel{{ c.id }}">
+                    Edit Category
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="/admin/categories/edit/{{ c.id }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label"><strong>Category Name</strong></label>
+                        <input name="name" class="form-control" value="{{ c.name }}" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning">Update Category</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
 {% endblock %}

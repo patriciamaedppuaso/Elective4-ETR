@@ -52,19 +52,6 @@
         box-shadow: 6px 6px 0px rgba(0,0,0,0.15);
         position: relative;
     }
-    .filter-section::before {
-        content: 'FILTER';
-        position: absolute;
-        top: -15px;
-        left: 30px;
-        background: var(--light-yellow);
-        padding: 0 15px;
-        font-family: 'Oswald', sans-serif;
-        font-weight: bold;
-        letter-spacing: 2px;
-        color: var(--dark-gray);
-        font-size: 0.9rem;
-    }
     .sold-out-badge {
         position: absolute;
         top: 10px;
@@ -141,68 +128,82 @@
 </div>
 
 <div class="container">
-<div class="filter-section">
-    <form method="get" class="row g-2 mb-4">
-
-        <div class="col-md-4">
-            <input type="text"
-                name="search"
-                class="form-control"
-                placeholder="Search products..."
-                value="{{ search }}">
+<div class="filter-section mb-4">
+    <form method="get">
+        <!-- Search Section (Always Visible) -->
+        <div class="row g-2 mb-3">
+            <div class="col-md-5">
+                <input type="text"
+                    name="search"
+                    class="form-control"
+                    placeholder="Search vintage cameras....."
+                    value="{{ search }}">
+            </div>
+            <div class="col-md-3">
+                <select name="category" class="form-select">
+                    <option value="">Category</option>
+                    {% for c in categories %}
+                        <option value="{{ c.id }}"
+                            {% if category == c.id|string %}selected{% endif %}>
+                            {{ c.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button class="btn btn-primary w-100" type="submit">Search</button>
+            </div>
+            <div class="col-md-2">
+                <button class="btn btn-primary w-10" type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#filterOptions"
+                        aria-expanded="false"
+                        aria-controls="filterOptions">
+                    <i class="bi bi-funnel"></i>
+                </button>
+            </div>
         </div>
 
-        <div class="col-md-3">
-            <select name="category" class="form-select">
-                <option value="">All Categories</option>
-                {% for c in categories %}
-                    <option value="{{ c.id }}"
-                        {% if category == c.id|string %}selected{% endif %}>
-                        {{ c.name }}
-                    </option>
-                {% endfor %}
-            </select>
+        <!-- Filter Options (Hidden by default, show if filters are active) -->
+        <div class="collapse {% if condition or brand or stock_status %}show{% endif %}" id="filterOptions">
+            <div class="row g-2 mb-3">
+                <!-- First Row -->
+                <div class="col-md-3">
+                    <select name="condition" class="form-select">
+                        <option value="">Conditions</option>
+                        <option value="Brand New" {% if condition == 'Brand New' %}selected{% endif %}>Brand New</option>
+                        <option value="Preloved" {% if condition == 'Preloved' %}selected{% endif %}>Preloved</option>
+                    </select>
+                </div>
+
+                <!-- Second Row -->
+                <div class="col-md-3">
+                    <select name="brand" class="form-select">
+                        <option value="">Brands</option>
+                        {% for b in brands %}
+                            <option value="{{ b.brand }}"
+                                {% if brand == b.brand %}selected{% endif %}>
+                                {{ b.brand }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <select name="stock_status" class="form-select">
+                        <option value="">Stock</option>
+                        <option value="available"
+                            {% if stock_status == 'available' %}selected{% endif %}>
+                            Available
+                        </option>
+                        <option value="soldout"
+                            {% if stock_status == 'soldout' %}selected{% endif %}>
+                            Sold Out
+                        </option>
+                    </select>
+                </div>
+            </div>
         </div>
-
-        <div class="col-md-3">
-            <select name="condition" class="form-select">
-                <option value="">All Conditions</option>
-                <option value="Brand New" {% if condition == 'Brand New' %}selected{% endif %}>Brand New</option>
-                <option value="Preloved" {% if condition == 'Preloved' %}selected{% endif %}>Preloved</option>
-            </select>
-        </div>
-
-        <div class="col-md-2">
-            <button class="btn btn-primary w-100">Filter</button>
-        </div>
-
-        <div class="col-md-3">
-        <select name="brand" class="form-select">
-            <option value="">All Brands</option>
-            {% for b in brands %}
-                <option value="{{ b.brand }}"
-                    {% if brand == b.brand %}selected{% endif %}>
-                    {{ b.brand }}
-                </option>
-            {% endfor %}
-        </select>
-    </div>
-
-    <div class="col-md-3">
-        <select name="stock_status" class="form-select">
-            <option value="">All Stock</option>
-            <option value="available"
-                {% if stock_status == 'available' %}selected{% endif %}>
-                Available
-            </option>
-            <option value="soldout"
-                {% if stock_status == 'soldout' %}selected{% endif %}>
-                Sold Out
-            </option>
-        </select>
-    </div>
-
-
     </form>
 </div>
 

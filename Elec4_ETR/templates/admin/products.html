@@ -34,78 +34,73 @@
 </div>
 
 <div class="container">
-<!-- ADD PRODUCT FORM -->
 <div class="admin-container">
-    <h4 class="mb-3" style="color: var(--teal);">Add New Product</h4>
-    <form method="POST" enctype="multipart/form-data" class="row g-3">
-        <div class="col-md-3">
-            <label class="form-label"><strong>Product Name</strong></label>
-            <input name="name" class="form-control" placeholder="Camera Name" required>
-        </div>
-        <div class="col-md-2">
-            <label class="form-label"><strong>Price</strong></label>
-            <input name="price" type="number" class="form-control" placeholder="₱0.00" required>
-        </div>
-        <div class="col-md-2">
-            <label class="form-label"><strong>Stock</strong></label>
-            <input name="stock" type="number" class="form-control" placeholder="Quantity" required>
-        </div>
-        <div class="col-md-2">
-            <label class="form-label"><strong>Condition</strong></label>
-            <select name="condition" class="form-control">
-            <option>Brand New</option>
-            <option>Preloved</option>
-            </select>
-        </div>
-        <div class="col-md-3">
-            <label class="form-label"><strong>Category</strong></label>
-            <select name="category_id" class="form-control">
-            {% for c in categories %}
-                <option value="{{ c.id }}">{{ c.name }}</option>
-            {% endfor %}
-            </select>
-        </div>
-        <div class="col-md-6">
-            <label class="form-label"><strong>Product Image</strong></label>
-            <input type="file" name="image" class="form-control" accept="image/*">
-        </div>
-        <div class="col-md-12">
-            <label class="form-label"><strong>Description</strong></label>
-            <textarea name="description" class="form-control" rows="3" placeholder="Product description..."></textarea>
-        </div>
-        <div class="col-md-12">
-            <button class="btn btn-primary">Add Product</button>
-        </div>
-    </form>
-</div>
-
-<div class="admin-container">
-    <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="d-flex justify-content-between align-items-center mb-4">
         <h4 style="color: var(--teal);">All Products</h4>
-        <div>
-            <a href="/admin/inventory" class="btn btn-sm btn-info me-2">Manage Inventory</a>
+        <div class="d-flex gap-2">
+            <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#addProductForm" aria-expanded="false" aria-controls="addProductForm">
+                Add New Product
+            </button>
+            <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#searchModal">
+                Search
+            </button>
+            <a href="/admin/inventory" class="btn btn-sm btn-info">Manage Inventory</a>
             <a href="/admin/categories" class="btn btn-sm btn-info">Manage Categories</a>
         </div>
     </div>
 
-    <form method="GET" class="mb-3">
-        <div class="row g-2">
-            <div class="col-md-3">
-                <select name="category" class="form-control">
-                    <option value="">All Categories</option>
-                    {% for c in categories %}
-                    <option value="{{ c.id }}"
-                        {% if selected_category == c.id|string %}selected{% endif %}>
-                        {{ c.name }}
-                    </option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="col-md-2">
-                <button class="btn btn-primary w-100">Filter</button>
-            </div>
+    <!-- Add Product Form (Collapsible) -->
+    <div class="collapse mb-4" id="addProductForm">
+        <div class="card card-body" style="background-color: #f8f9fa; border: 2px solid var(--teal);">
+            <h5 class="mb-3" style="color: var(--teal);">Add New Product</h5>
+            <form method="POST" enctype="multipart/form-data">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label"><strong>Product Name</strong></label>
+                        <input name="name" class="form-control" placeholder="Camera Name" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label"><strong>Price</strong></label>
+                        <input name="price" type="number" step="0.01" class="form-control" placeholder="₱0.00" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label"><strong>Stock</strong></label>
+                        <input name="stock" type="number" class="form-control" placeholder="Quantity" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label"><strong>Condition</strong></label>
+                        <select name="condition" class="form-control" required>
+                            <option value="">Select Condition</option>
+                            <option value="Brand New">Brand New</option>
+                            <option value="Preloved">Preloved</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label"><strong>Category</strong></label>
+                        <select name="category_id" class="form-control" required>
+                            <option value="">Select Category</option>
+                            {% for c in categories %}
+                                <option value="{{ c.id }}">{{ c.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label"><strong>Product Image</strong></label>
+                        <input type="file" name="image" class="form-control" accept="image/*">
+                        <small class="text-muted">Upload a product image (optional)</small>
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label"><strong>Description</strong></label>
+                        <textarea name="description" class="form-control" rows="4" placeholder="Product description..."></textarea>
+                    </div>
+                    <div class="col-md-12">
+                        <button type="submit" class="btn btn-primary">Add Product</button>
+                        <button type="button" class="btn btn-secondary" data-bs-toggle="collapse" data-bs-target="#addProductForm">Cancel</button>
+                    </div>
+                </div>
+            </form>
         </div>
-    </form>
+    </div>
 
     <!-- PRODUCT TABLE -->
     <div class="table-responsive">
@@ -166,4 +161,75 @@
     </div>
 </div>
 </div>
+
+<!-- Search Modal -->
+<div class="modal fade" id="searchModal" tabindex="-1" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title" id="searchModalLabel">
+                    Search & Filter Products
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="GET" action="{{ url_for('admin_products') }}">
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <!-- First Row -->
+                        <div class="col-md-4">
+                            <label class="form-label"><strong>Search Products</strong></label>
+                            <input type="text" name="search" class="form-control" placeholder="Search products..." value="{{ search_query or '' }}">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label"><strong>Category</strong></label>
+                            <select name="category" class="form-control">
+                                <option value="">All Categories</option>
+                                {% for c in categories %}
+                                <option value="{{ c.id }}"
+                                    {% if selected_category == c.id|string %}selected{% endif %}>
+                                    {{ c.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label"><strong>Condition</strong></label>
+                            <select name="condition" class="form-control">
+                                <option value="">All Conditions</option>
+                                <option value="Brand New" {% if condition_filter == 'Brand New' %}selected{% endif %}>Brand New</option>
+                                <option value="Preloved" {% if condition_filter == 'Preloved' %}selected{% endif %}>Preloved</option>
+                            </select>
+                        </div>
+                        <!-- Second Row -->
+                        <div class="col-md-6">
+                            <label class="form-label"><strong>Brand</strong></label>
+                            <select name="brand" class="form-control">
+                                <option value="">All Brands</option>
+                                {% for b in brands %}
+                                <option value="{{ b.brand }}" {% if brand_filter == b.brand %}selected{% endif %}>
+                                    {{ b.brand }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label"><strong>Stock Status</strong></label>
+                            <select name="stock_status" class="form-control">
+                                <option value="">All Stock</option>
+                                <option value="available" {% if stock_status == 'available' %}selected{% endif %}>Available</option>
+                                <option value="low" {% if stock_status == 'low' %}selected{% endif %}>Low Stock (≤5)</option>
+                                <option value="soldout" {% if stock_status == 'soldout' %}selected{% endif %}>Out of Stock</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a href="{{ url_for('admin_products') }}" class="btn btn-secondary">Clear Filters</a>
+                    <button type="submit" class="btn btn-primary">Filter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 {% endblock %}

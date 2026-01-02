@@ -34,72 +34,116 @@
 
 <div class="container">
 <div class="admin-container">
-    <form method="POST" class="row g-3" enctype="multipart/form-data">
-    <div class="col-md-6">
-        <label class="form-label"><strong>Product Name</strong></label>
-        <input name="name" value="{{ product.name }}" class="form-control" required>
-    </div>
-
-    <div class="col-md-3">
-        <label class="form-label"><strong>Price</strong></label>
-        <input name="price" type="number" value="{{ product.price }}" class="form-control" required>
-    </div>
-
-    <div class="col-md-3">
-        <label class="form-label"><strong>Stock</strong></label>
-        <input name="stock" type="number" value="{{ product.stock }}" class="form-control" required>
-    </div>
-
-    <div class="col-md-6">
-        <label class="form-label"><strong>Category</strong></label>
-        <select name="category_id" class="form-control">
-        {% for c in categories %}
-            <option value="{{ c.id }}" {% if c.id == product.category_id %}selected{% endif %}>
-            {{ c.name }}
-            </option>
-        {% endfor %}
-        </select>
-    </div>
-
-    <div class="col-md-6">
-        <label class="form-label"><strong>Condition</strong></label>
-        <select name="condition" class="form-control">
-        <option {% if product.condition_type == 'Brand New' %}selected{% endif %}>Brand New</option>
-        <option {% if product.condition_type == 'Preloved' %}selected{% endif %}>Preloved</option>
-        </select>
-    </div>
-
-    <div class="col-md-6">
-        <label class="form-label"><strong>Product Image</strong></label>
-
-        {% if product.image %}
-            <div class="mb-2">
-            <img src="{{ url_for('static', filename='uploads/products/' ~ product.image) }}"
-                class="img-thumbnail"
-                width="150"
-                style="object-fit: cover; border-radius: 10px;">
+    <form method="POST" enctype="multipart/form-data">
+        <!-- Basic Information Section -->
+        <div class="mb-4">
+            <h5 class="mb-3" style="color: var(--teal); border-bottom: 2px solid var(--teal); padding-bottom: 10px;">
+                Basic Information
+            </h5>
+            <div class="row g-3">
+                <div class="col-md-12">
+                    <label class="form-label"><strong>Product Name</strong></label>
+                    <input name="name" value="{{ product.name }}" class="form-control" required>
+                </div>
+                <div class="col-md-12">
+                    <label class="form-label"><strong>Description</strong></label>
+                    <textarea name="description" class="form-control" rows="4" placeholder="Enter product description...">{{ product.description or '' }}</textarea>
+                </div>
             </div>
-        {% else %}
-            <div class="mb-2 text-muted">
-            <em>No image uploaded</em>
+        </div>
+
+        <!-- Pricing & Inventory Section -->
+        <div class="mb-4">
+            <h5 class="mb-3" style="color: var(--teal); border-bottom: 2px solid var(--teal); padding-bottom: 10px;">
+                Pricing & Inventory
+            </h5>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label"><strong>Price</strong></label>
+                    <div class="input-group">
+                        <span class="input-group-text">₱</span>
+                        <input name="price" type="number" step="0.01" value="{{ product.price }}" class="form-control" required>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label"><strong>Stock Quantity</strong></label>
+                    <input name="stock" type="number" value="{{ product.stock }}" class="form-control" required>
+                </div>
             </div>
-        {% endif %}
+        </div>
 
-        <input type="file" name="image" class="form-control" accept="image/*">
-        <small class="text-muted">
-            Leave empty to keep current image
-        </small>
-    </div>
+        <!-- Category & Condition Section -->
+        <div class="mb-4">
+            <h5 class="mb-3" style="color: var(--teal); border-bottom: 2px solid var(--teal); padding-bottom: 10px;">
+                Category & Condition
+            </h5>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label"><strong>Category</strong></label>
+                    <select name="category_id" class="form-control" required>
+                        <option value="">Select Category</option>
+                        {% for c in categories %}
+                            <option value="{{ c.id }}" {% if c.id == product.category_id %}selected{% endif %}>
+                                {{ c.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label"><strong>Condition</strong></label>
+                    <select name="condition" class="form-control" required>
+                        <option value="">Select Condition</option>
+                        <option value="Brand New" {% if product.condition_type == 'Brand New' %}selected{% endif %}>Brand New</option>
+                        <option value="Preloved" {% if product.condition_type == 'Preloved' %}selected{% endif %}>Preloved</option>
+                    </select>
+                </div>
+            </div>
+        </div>
 
-    <div class="col-md-12">
-        <label class="form-label"><strong>Description</strong></label>
-        <textarea name="description" class="form-control" rows="4">{{ product.description or '' }}</textarea>
-    </div>
+        <!-- Product Image Section -->
+        <div class="mb-4">
+            <h5 class="mb-3" style="color: var(--teal); border-bottom: 2px solid var(--teal); padding-bottom: 10px;">
+                Product Image
+            </h5>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    {% if product.image %}
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Current Image</strong></label>
+                            <div>
+                                <img src="{{ url_for('static', filename='uploads/products/' ~ product.image) }}"
+                                    class="img-thumbnail"
+                                    width="200"
+                                    style="object-fit: cover; border-radius: 10px; border: 2px solid var(--teal);">
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="mb-3">
+                            <div class="alert alert-info">
+                                No image currently uploaded
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label"><strong>Upload New Image</strong></label>
+                    <input type="file" name="image" class="form-control" accept="image/*">
+                    <small class="text-muted">
+                        Leave empty to keep current image. Accepted formats: JPG, PNG, GIF
+                    </small>
+                </div>
+            </div>
+        </div>
 
-    <div class="col-md-12">
-        <button class="btn btn-primary">Update Product</button>
-        <a href="/admin/products" class="btn btn-secondary">Cancel</a>
-    </div>
+        <!-- Form Actions -->
+        <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+            <a href="/admin/products" class="btn btn-secondary">
+                Back to Products
+            </a>
+            <button type="submit" class="btn btn-primary">
+                Update Product
+            </button>
+        </div>
     </form>
 </div>
 </div>
