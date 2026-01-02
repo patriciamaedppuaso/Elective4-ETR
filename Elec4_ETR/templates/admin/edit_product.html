@@ -1,27 +1,57 @@
 {% extends "base.html" %}
-{% block title %}Edit Product{% endblock %}
+{% block title %}Edit Product - Digicam Shop{% endblock %}
+
+{% block css %}
+<style>
+    .admin-header {
+        background: linear-gradient(135deg, var(--teal), var(--burnt-orange));
+        color: white;
+        padding: 40px 0;
+        margin: -30px -15px 30px -15px;
+        border-radius: 0 0 20px 20px;
+    }
+    .admin-header h3 {
+        color: white;
+        font-size: 2.5rem;
+        margin: 0;
+    }
+    .admin-container {
+        background-color: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-    <h3>Edit Product</h3>
+<div class="admin-header text-center">
+    <div class="container">
+        <h3>✏️ Edit Product</h3>
+        <p class="mt-2">Update camera product information</p>
+    </div>
+</div>
 
-    <form method="POST" class="row g-2" enctype="multipart/form-data">
+<div class="container">
+<div class="admin-container">
+    <form method="POST" class="row g-3" enctype="multipart/form-data">
     <div class="col-md-6">
-        <label>Name</label>
-        <input name="name" value="{{ product.name }}" class="form-control">
+        <label class="form-label"><strong>Product Name</strong></label>
+        <input name="name" value="{{ product.name }}" class="form-control" required>
     </div>
 
     <div class="col-md-3">
-        <label>Price</label>
-        <input name="price" value="{{ product.price }}" class="form-control">
+        <label class="form-label"><strong>Price</strong></label>
+        <input name="price" type="number" value="{{ product.price }}" class="form-control" required>
     </div>
 
     <div class="col-md-3">
-        <label>Stock</label>
-        <input name="stock" value="{{ product.stock }}" class="form-control">
+        <label class="form-label"><strong>Stock</strong></label>
+        <input name="stock" type="number" value="{{ product.stock }}" class="form-control" required>
     </div>
 
     <div class="col-md-6">
-        <label>Category</label>
+        <label class="form-label"><strong>Category</strong></label>
         <select name="category_id" class="form-control">
         {% for c in categories %}
             <option value="{{ c.id }}" {% if c.id == product.category_id %}selected{% endif %}>
@@ -32,7 +62,7 @@
     </div>
 
     <div class="col-md-6">
-        <label>Condition</label>
+        <label class="form-label"><strong>Condition</strong></label>
         <select name="condition" class="form-control">
         <option {% if product.condition_type == 'Brand New' %}selected{% endif %}>Brand New</option>
         <option {% if product.condition_type == 'Preloved' %}selected{% endif %}>Preloved</option>
@@ -40,14 +70,14 @@
     </div>
 
     <div class="col-md-6">
-        <label class="form-label">Product Image</label>
+        <label class="form-label"><strong>Product Image</strong></label>
 
         {% if product.image %}
             <div class="mb-2">
             <img src="{{ url_for('static', filename='uploads/products/' ~ product.image) }}"
                 class="img-thumbnail"
                 width="150"
-                style="object-fit: cover;">
+                style="object-fit: cover; border-radius: 10px;">
             </div>
         {% else %}
             <div class="mb-2 text-muted">
@@ -55,21 +85,22 @@
             </div>
         {% endif %}
 
-        <input type="file" name="image" class="form-control">
+        <input type="file" name="image" class="form-control" accept="image/*">
         <small class="text-muted">
             Leave empty to keep current image
         </small>
-        </div>
-
-
-    <div class="col-md-12">
-        <label>Description</label>
-        <textarea name="description" class="form-control">{{ product.description }}</textarea>
     </div>
 
     <div class="col-md-12">
-        <button class="btn btn-dark">Update</button>
+        <label class="form-label"><strong>Description</strong></label>
+        <textarea name="description" class="form-control" rows="4">{{ product.description or '' }}</textarea>
+    </div>
+
+    <div class="col-md-12">
+        <button class="btn btn-primary">Update Product</button>
         <a href="/admin/products" class="btn btn-secondary">Cancel</a>
     </div>
     </form>
+</div>
+</div>
 {% endblock %}

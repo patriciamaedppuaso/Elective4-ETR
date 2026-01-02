@@ -1,25 +1,60 @@
 {% extends "base.html" %}
-{% block title %}Manage Users{% endblock %}
+{% block title %}Manage Users - Digicam Shop{% endblock %}
+
+{% block css %}
+<style>
+    .admin-header {
+        background: linear-gradient(135deg, var(--teal), var(--burnt-orange));
+        color: white;
+        padding: 40px 0;
+        margin: -30px -15px 30px -15px;
+        border-radius: 0 0 20px 20px;
+    }
+    .admin-header h3 {
+        color: white;
+        font-size: 2.5rem;
+        margin: 0;
+    }
+    .admin-container {
+        background-color: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<h3 class="mb-4">Users</h3>
+<div class="admin-header text-center">
+    <div class="container">
+        <h3>👥 Manage Users</h3>
+        <p class="mt-2">Manage customers and admin accounts</p>
+    </div>
+</div>
 
+<div class="container">
+<div class="admin-container">
+<div class="table-responsive">
 <table class="table table-bordered align-middle">
-  <thead>
+  <thead class="table-dark">
     <tr>
       <th>Name</th>
       <th>Email</th>
       <th>Role</th>
       <th>Status</th>
-      <th width="300">Actions</th>
+      <th width="400">Actions</th>
     </tr>
   </thead>
   <tbody>
     {% for u in users %}
     <tr>
-      <td>{{ u.fullname }}</td>
+      <td><strong>{{ u.fullname }}</strong></td>
       <td>{{ u.email }}</td>
-      <td>{{ u.role }}</td>
+      <td>
+        <span class="badge {% if u.role == 'admin' %}bg-danger{% else %}bg-info{% endif %}">
+          {{ u.role }}
+        </span>
+      </td>
       <td>
         {% if u.is_active %}
           <span class="badge bg-success">Active</span>
@@ -28,28 +63,32 @@
         {% endif %}
       </td>
       <td>
+        <div class="d-flex gap-2 align-items-center">
+          <!-- Reset Password -->
+          <form method="POST"
+                action="/admin/users/reset-password/{{ u.id }}"
+                class="d-flex gap-2">
+            <input type="password"
+                   name="password"
+                   placeholder="New password"
+                   class="form-control form-control-sm"
+                   style="width: 150px;"
+                   required>
+            <button class="btn btn-warning btn-sm">Reset</button>
+          </form>
 
-        <!-- Reset Password -->
-        <form method="POST"
-              action="/admin/users/reset-password/{{ u.id }}"
-              class="d-inline">
-          <input type="password"
-                 name="password"
-                 placeholder="New password"
-                 class="form-control form-control-sm d-inline w-50"
-                 required>
-          <button class="btn btn-warning btn-sm">Reset</button>
-        </form>
-
-        <!-- Activate / Deactivate -->
-        <a href="/admin/users/toggle/{{ u.id }}"
-           class="btn btn-sm btn-secondary ms-2">
-           {% if u.is_active %}Deactivate{% else %}Activate{% endif %}
-        </a>
-
+          <!-- Activate / Deactivate -->
+          <a href="/admin/users/toggle/{{ u.id }}"
+             class="btn btn-sm btn-secondary">
+             {% if u.is_active %}Deactivate{% else %}Activate{% endif %}
+          </a>
+        </div>
       </td>
     </tr>
     {% endfor %}
   </tbody>
 </table>
+</div>
+</div>
+</div>
 {% endblock %}

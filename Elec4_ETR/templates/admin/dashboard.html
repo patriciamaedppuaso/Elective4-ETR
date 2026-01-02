@@ -1,17 +1,117 @@
 {% extends "base.html" %}
 
-{% block title %}Admin Dashboard{% endblock %}
+{% block title %}Admin Dashboard - Digicam Shop{% endblock %}
+
+{% block css %}
+<style>
+    .admin-header {
+        background: 
+            repeating-linear-gradient(45deg, var(--teal) 0%, #16A085 50%, var(--teal) 100%),
+            linear-gradient(135deg, var(--teal), var(--burnt-orange));
+        background-size: 30px 30px, 100%;
+        color: white;
+        padding: 50px 0;
+        margin: -30px -15px 30px -15px;
+        border-radius: 0;
+        border-bottom: 6px double var(--dark-gray);
+        position: relative;
+    }
+    .admin-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: repeating-linear-gradient(90deg, var(--mustard-yellow) 0%, var(--mustard-yellow) 10px, transparent 10px, transparent 20px);
+    }
+    .admin-header h3 {
+        color: white;
+        font-size: 3.5rem;
+        margin: 0;
+        font-family: 'Bebas Neue', 'Oswald', sans-serif;
+        text-transform: uppercase;
+        letter-spacing: 4px;
+        text-shadow: 3px 3px 0px var(--dark-gray);
+        position: relative;
+    }
+    .admin-header h3::before,
+    .admin-header h3::after {
+        content: '❋';
+        color: var(--mustard-yellow);
+        font-size: 2rem;
+        margin: 0 20px;
+    }
+    .admin-card {
+        transition: all 0.3s;
+        height: 100%;
+        position: relative;
+    }
+    .admin-card::before {
+        content: '';
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        right: 10px;
+        bottom: 10px;
+        border: 2px dashed var(--burnt-orange);
+        opacity: 0;
+        transition: opacity 0.3s;
+        pointer-events: none;
+    }
+    .admin-card:hover {
+        transform: translateY(-10px) rotate(1deg);
+    }
+    .admin-card:hover::before {
+        opacity: 0.5;
+    }
+    .admin-card .card-body {
+        text-align: center;
+        padding: 30px;
+        position: relative;
+    }
+    .admin-card h5 {
+        color: var(--teal);
+        font-weight: 900;
+        font-size: 1.8rem;
+        margin-bottom: 15px;
+        font-family: 'Cinzel', serif;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        position: relative;
+    }
+    .admin-card h5::after {
+        content: '';
+        position: absolute;
+        bottom: -8px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 40px;
+        height: 3px;
+        background: linear-gradient(90deg, var(--burnt-orange), var(--mustard-yellow));
+    }
+    .admin-card p {
+        color: var(--dark-gray);
+        margin-bottom: 20px;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<h3 class="mb-4">Admin Dashboard</h3>
+<div class="admin-header text-center">
+    <div class="container">
+        <h3>⚙️ Admin Dashboard</h3>
+        <p class="mt-2">Manage your Digicam Shop</p>
+    </div>
+</div>
 
-<div class="row g-3">
+<div class="container">
+<div class="row g-4">
 
   <!-- PRODUCTS -->
   <div class="col-md-4 col-lg-3">
-    <div class="card shadow-sm text-center">
+    <div class="card admin-card shadow-sm">
       <div class="card-body">
-        <h5>Products</h5>
+        <h5>📷 Products</h5>
         <p class="text-muted small">Add / Edit Cameras</p>
         <a href="/admin/products" class="btn btn-dark btn-sm">Manage</a>
       </div>
@@ -20,9 +120,9 @@
 
   <!-- CATEGORIES -->
   <div class="col-md-4 col-lg-3">
-    <div class="card shadow-sm text-center">
+    <div class="card admin-card shadow-sm">
       <div class="card-body">
-        <h5>Categories</h5>
+        <h5>📁 Categories</h5>
         <p class="text-muted small">Brand & Type</p>
         <a href="/admin/categories" class="btn btn-dark btn-sm">Manage</a>
       </div>
@@ -31,9 +131,9 @@
 
   <!-- INVENTORY -->
   <div class="col-md-4 col-lg-3">
-    <div class="card shadow-sm text-center">
+    <div class="card admin-card shadow-sm">
       <div class="card-body">
-        <h5>Inventory</h5>
+        <h5>📦 Inventory</h5>
         <p class="text-muted small">Stock Levels</p>
         <a href="/admin/inventory" class="btn btn-dark btn-sm">View</a>
       </div>
@@ -42,9 +142,9 @@
 
   <!-- ORDERS -->
   <div class="col-md-4 col-lg-3">
-    <div class="card shadow-sm text-center">
+    <div class="card admin-card shadow-sm">
       <div class="card-body">
-        <h5>Orders</h5>
+        <h5>🛒 Orders</h5>
         <p class="text-muted small">Customer Purchases</p>
         <a href="/admin/orders" class="btn btn-dark btn-sm">View</a>
       </div>
@@ -53,9 +153,9 @@
 
   <!-- SALES -->
   <div class="col-md-4 col-lg-3">
-    <div class="card shadow-sm text-center">
+    <div class="card admin-card shadow-sm">
       <div class="card-body">
-        <h5>Sales</h5>
+        <h5>💰 Sales</h5>
         <p class="text-muted small">Revenue Reports</p>
         <a href="/admin/sales" class="btn btn-dark btn-sm">View</a>
       </div>
@@ -64,14 +164,15 @@
 
   <!-- USERS -->
   <div class="col-md-4 col-lg-3">
-    <div class="card shadow-sm text-center">
+    <div class="card admin-card shadow-sm">
       <div class="card-body">
-        <h5>Users</h5>
+        <h5>👥 Users</h5>
         <p class="text-muted small">Customers & Admins</p>
         <a href="/admin/users" class="btn btn-dark btn-sm">Manage</a>
       </div>
     </div>
   </div>
 
+</div>
 </div>
 {% endblock %}

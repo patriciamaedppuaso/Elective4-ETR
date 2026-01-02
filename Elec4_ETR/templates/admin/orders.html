@@ -1,9 +1,40 @@
 {% extends "base.html" %}
-{% block title %}Manage Orders{% endblock %}
+{% block title %}Manage Orders - Digicam Shop{% endblock %}
+
+{% block css %}
+<style>
+    .admin-header {
+        background: linear-gradient(135deg, var(--teal), var(--burnt-orange));
+        color: white;
+        padding: 40px 0;
+        margin: -30px -15px 30px -15px;
+        border-radius: 0 0 20px 20px;
+    }
+    .admin-header h3 {
+        color: white;
+        font-size: 2.5rem;
+        margin: 0;
+    }
+    .admin-container {
+        background-color: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<h3 class="mb-3">Manage Orders</h3>
+<div class="admin-header text-center">
+    <div class="container">
+        <h3>🛒 Manage Orders</h3>
+        <p class="mt-2">Review and process customer orders</p>
+    </div>
+</div>
 
+<div class="container">
+<div class="admin-container">
+<div class="table-responsive">
 <table class="table table-bordered align-middle">
   <thead class="table-dark">
     <tr>
@@ -23,7 +54,7 @@
              {% elif o.status == 'Approved' %}table-success
              {% endif %}"
     >
-      <td>#{{ o.id }}</td>
+      <td><strong>#{{ o.id }}</strong></td>
       <td>{{ o.customer_name }}</td>
       <td>{{ o.payment_method }}</td>
 
@@ -65,10 +96,12 @@
     {% endfor %}
   </tbody>
 </table>
+</div>
 
 {% if not orders %}
 <div class="alert alert-info text-center">
-  No orders found.
+  <h5>No orders found.</h5>
+  <p class="mb-0">Orders will appear here when customers make purchases.</p>
 </div>
 {% endif %}
 
@@ -122,4 +155,6 @@
   </div>
 </div>
 {% endfor %}
+</div>
+</div>
 {% endblock %}

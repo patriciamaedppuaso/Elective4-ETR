@@ -1,0 +1,348 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Digicam Shop{% endblock %}
+
+{% block css %}
+<style>
+    :root {
+        --mustard-yellow: #F4D03F;
+        --burnt-orange: #E67E22;
+        --teal: #1ABC9C;
+        --dark-gray: #2C3E50;
+        --light-yellow: #F9E79F;
+    }
+
+    .hero-section {
+        height: 90vh;
+        min-height: 600px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        color: white;
+        background-size: cover;
+        background-position: center;
+        background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('{{ url_for("static", filename="images/home/Vintage Camera Collection.jpg") }}') center/cover;
+    }
+
+    .hero-content h1 {
+        font-size: 4rem;
+        font-weight: 900;
+        margin-bottom: 2rem;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        font-family: 'Bebas Neue', 'Oswald', sans-serif;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+    }
+
+    .btn-primary-custom {
+        background-color: var(--mustard-yellow);
+        color: var(--dark-gray);
+        padding: 15px 40px;
+        font-size: 1.2rem;
+        font-weight: bold;
+        border: 3px solid var(--dark-gray);
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-primary-custom:hover {
+        background-color: var(--burnt-orange);
+        color: white;
+    }
+
+    .press-section {
+        background-color: var(--teal);
+        padding: 30px 0;
+        text-align: center;
+        border-top: 3px solid var(--dark-gray);
+        border-bottom: 3px solid var(--dark-gray);
+    }
+
+    .press-logos {
+        display: flex;
+        justify-content: center;
+        gap: 40px;
+        flex-wrap: wrap;
+    }
+
+    .press-logo {
+        color: white;
+        font-weight: bold;
+        font-size: 1.1rem;
+    }
+
+    .section-two {
+        background-color: var(--light-yellow);
+        padding: 60px 0;
+    }
+
+    .section-two h2 {
+        color: var(--teal);
+        font-size: 3rem;
+        font-weight: 900;
+        margin-bottom: 1rem;
+    }
+
+    .section-two p {
+        color: var(--dark-gray);
+        font-size: 1.1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .image-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+        margin-top: 30px;
+    }
+
+    .image-box {
+        border: 4px solid var(--dark-gray);
+        overflow: hidden;
+        aspect-ratio: 1;
+    }
+
+    .image-box img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .section-peaches {
+        background-color: var(--light-yellow);
+        padding: 60px 0;
+    }
+
+    .peaches-content {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+        align-items: center;
+    }
+
+    .peaches-image {
+        border: 4px solid var(--mustard-yellow);
+        overflow: hidden;
+        aspect-ratio: 1;
+    }
+
+    .peaches-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .peaches-text h2 {
+        color: var(--teal);
+        font-size: 3rem;
+        font-weight: 900;
+        margin-bottom: 1.5rem;
+    }
+
+    .peaches-text p {
+        color: var(--dark-gray);
+        font-size: 1.1rem;
+        line-height: 1.8;
+        margin-bottom: 1.5rem;
+    }
+
+    .package-section {
+        background-color: var(--burnt-orange);
+        padding: 60px 0;
+        color: white;
+    }
+
+    .package-content {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+        align-items: center;
+    }
+
+    .package-text h2 {
+        font-size: 3rem;
+        font-weight: 900;
+        margin-bottom: 1.5rem;
+    }
+
+    .package-text p {
+        font-size: 1.1rem;
+        line-height: 1.8;
+        margin-bottom: 1.5rem;
+    }
+
+    .package-image {
+        border: 4px solid var(--mustard-yellow);
+        overflow: hidden;
+        aspect-ratio: 1;
+    }
+
+    .package-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .reviews-section {
+        background-color: var(--light-yellow);
+        padding: 60px 0;
+    }
+
+    .review-content {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 40px;
+        align-items: center;
+    }
+
+    .reviewer-image {
+        border: 4px solid var(--mustard-yellow);
+        overflow: hidden;
+        aspect-ratio: 1;
+    }
+
+    .reviewer-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .review-text h3 {
+        color: var(--teal);
+        font-size: 2rem;
+        font-weight: 900;
+        margin-bottom: 1.5rem;
+        font-style: italic;
+    }
+
+    .review-text p {
+        color: var(--dark-gray);
+        font-size: 1.1rem;
+        line-height: 1.8;
+        margin-bottom: 1.5rem;
+    }
+
+    .review-attribution {
+        color: var(--dark-gray);
+        font-style: italic;
+    }
+
+    @media (max-width: 768px) {
+        .hero-content h1 {
+            font-size: 2.5rem;
+        }
+        .section-two h2,
+        .peaches-text h2,
+        .package-text h2 {
+            font-size: 2rem;
+        }
+        .peaches-content,
+        .package-content,
+        .review-content {
+            grid-template-columns: 1fr;
+        }
+        .image-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="hero-content">
+        <h1>DIGICAM SHOP<br>Vintage Cameras, Timeless Memories</h1>
+        <a href="{{ url_for('products') }}" class="btn-primary-custom">BROWSE CAMERAS</a>
+    </div>
+</section>
+
+<!-- Press Section -->
+<section class="press-section">
+    <div class="container">
+        <div class="press-logos">
+            <div class="press-logo">PHOTOGRAPHY MAGAZINE</div>
+            <div class="press-logo">CAMERA REVIEW</div>
+            <div class="press-logo">VINTAGE COLLECTORS</div>
+            <div class="press-logo">FILM PHOTOGRAPHY</div>
+        </div>
+    </div>
+</section>
+
+<!-- Section Two -->
+<section class="section-two">
+    <div class="container px-4">
+        <div class="row">
+            <div class="col-lg-6">
+                <h2>Discover Vintage Camera Excellence</h2>
+                <p>At Digicam Shop, we curate the finest collection of vintage and retro cameras. From iconic film cameras that defined photography history to beautifully preserved digital classics, each camera tells a story and captures moments with timeless quality.</p>
+                <p>Whether you're a professional photographer, a collector, or someone who appreciates the art of photography, our carefully selected cameras offer the perfect blend of nostalgia and functionality.</p>
+                <a href="{{ url_for('products') }}" class="btn-primary-custom">EXPLORE COLLECTION</a>
+                
+                <div class="image-grid mt-4">
+                    <div class="image-box">
+                        <img src="{{ url_for('static', filename='images/home/Vintage Film Camera.jpg') }}" alt="Vintage Film Camera">
+                    </div>
+                    <div class="image-box">
+                        <img src="{{ url_for('static', filename='images/home/classic retro camera.jpg') }}" alt="Classic Retro Camera">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Section Three -->
+<section class="section-peaches">
+    <div class="container px-4">
+        <div class="peaches-content">
+            <div class="peaches-image">
+                <img src="{{ url_for('static', filename='images/home/Vintage Camera Collection.jpg') }}" alt="Vintage Camera Collection">
+            </div>
+            <div class="peaches-text">
+                <h2>ABOUT DIGICAM SHOP</h2>
+                <p>Digicam Shop is your trusted destination for vintage and retro cameras. We're passionate about preserving the art of photography by offering carefully curated cameras that combine historical significance with practical functionality.</p>
+                <p>Our team of photography enthusiasts meticulously inspects, tests, and authenticates every camera in our collection. From rare film cameras to limited edition digital models, we ensure each piece meets our high standards for quality and authenticity.</p>
+                <p>Whether you're starting your photography journey or expanding your collection, Digicam Shop provides expert guidance and exceptional service. Join thousands of satisfied customers who trust us for their camera needs.</p>
+                <a href="{{ url_for('products') }}" class="btn-primary-custom">SHOP NOW</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Package Section -->
+<section class="package-section">
+    <div class="container px-4">
+        <div class="package-content">
+            <div class="package-text">
+                <h2>Our Camera Collections</h2>
+                <p>Explore our diverse range of camera collections, each carefully categorized to help you find exactly what you're looking for. From classic 35mm film cameras to vintage digital point-and-shoots, we have something for every photography enthusiast.</p>
+                <p>Our collections include brand new cameras for those who want pristine condition, as well as preloved cameras that carry the charm and character of previous owners. Each camera comes with detailed descriptions, condition reports, and authenticity guarantees.</p>
+                <p>Browse by brand, type, condition, or price range. Our intuitive filtering system makes it easy to discover your next perfect camera. Start exploring our collections and find the camera that speaks to you.</p>
+                <a href="{{ url_for('products') }}" class="btn-primary-custom">VIEW ALL CAMERAS</a>
+            </div>
+            <div class="package-image">
+                <img src="{{ url_for('static', filename='images/home/premium vintage camera.jpg') }}" alt="Premium Vintage Cameras">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Reviews Section -->
+<section class="reviews-section">
+    <div class="container px-4">
+        <div class="review-content">
+            <div class="reviewer-image">
+                <img src="{{ url_for('static', filename='images/home/Photographer with Vintage Camera.jpg') }}" alt="Photographer with Vintage Camera">
+            </div>
+            <div class="review-text">
+                <h3>"Digicam Shop is the best place for vintage camera enthusiasts."</h3>
+                <p>I've purchased three cameras from Digicam Shop, and each one exceeded my expectations. The cameras were exactly as described, in excellent condition, and the customer service was outstanding. They really know their cameras and helped me find the perfect models for my collection.</p>
+                <p>The authenticity and quality of their inventory is impressive. As a professional photographer, I appreciate their attention to detail and commitment to preserving the art of photography. I'll definitely be back for more cameras!</p>
+                <p class="review-attribution">— Sarah Martinez, Professional Photographer</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

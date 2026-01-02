@@ -1,123 +1,169 @@
 {% extends "base.html" %}
-{% block title %}Manage Products{% endblock %}
+{% block title %}Manage Products - Digicam Shop{% endblock %}
+
+{% block css %}
+<style>
+    .admin-header {
+        background: linear-gradient(135deg, var(--teal), var(--burnt-orange));
+        color: white;
+        padding: 40px 0;
+        margin: -30px -15px 30px -15px;
+        border-radius: 0 0 20px 20px;
+    }
+    .admin-header h3 {
+        color: white;
+        font-size: 2.5rem;
+        margin: 0;
+    }
+    .admin-container {
+        background-color: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        margin-bottom: 30px;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-    <h3 class="mb-3">Manage Products</h3>
-    <!-- ADD PRODUCT FORM -->
-    <div class="card mb-4">
-    <div class="card-body">
-        <form method="POST" enctype="multipart/form-data" class="row g-2">
+<div class="admin-header text-center">
+    <div class="container">
+        <h3>📷 Manage Products</h3>
+        <p class="mt-2">Add and edit camera products</p>
+    </div>
+</div>
+
+<div class="container">
+<!-- ADD PRODUCT FORM -->
+<div class="admin-container">
+    <h4 class="mb-3" style="color: var(--teal);">Add New Product</h4>
+    <form method="POST" enctype="multipart/form-data" class="row g-3">
         <div class="col-md-3">
-            <input name="name" class="form-control" placeholder="Product Name" required>
+            <label class="form-label"><strong>Product Name</strong></label>
+            <input name="name" class="form-control" placeholder="Camera Name" required>
         </div>
         <div class="col-md-2">
-            <input name="price" type="number" class="form-control" placeholder="Price" required>
+            <label class="form-label"><strong>Price</strong></label>
+            <input name="price" type="number" class="form-control" placeholder="₱0.00" required>
         </div>
         <div class="col-md-2">
-            <input name="stock" type="number" class="form-control" placeholder="Stock" required>
+            <label class="form-label"><strong>Stock</strong></label>
+            <input name="stock" type="number" class="form-control" placeholder="Quantity" required>
         </div>
         <div class="col-md-2">
+            <label class="form-label"><strong>Condition</strong></label>
             <select name="condition" class="form-control">
             <option>Brand New</option>
             <option>Preloved</option>
             </select>
         </div>
-        <div class="col-md-2">
+        <div class="col-md-3">
+            <label class="form-label"><strong>Category</strong></label>
             <select name="category_id" class="form-control">
             {% for c in categories %}
                 <option value="{{ c.id }}">{{ c.name }}</option>
             {% endfor %}
             </select>
         </div>
-        <div class="col-md-3">
-            <input type="file" name="image" class="form-control">
+        <div class="col-md-6">
+            <label class="form-label"><strong>Product Image</strong></label>
+            <input type="file" name="image" class="form-control" accept="image/*">
         </div>
         <div class="col-md-12">
-            <textarea name="description" class="form-control" placeholder="Description"></textarea>
+            <label class="form-label"><strong>Description</strong></label>
+            <textarea name="description" class="form-control" rows="3" placeholder="Product description..."></textarea>
         </div>
         <div class="col-md-12">
-            <button class="btn btn-dark btn-sm">Add Product</button>
+            <button class="btn btn-primary">Add Product</button>
         </div>
-        </form>
-    </div>
+    </form>
+</div>
+
+<div class="admin-container">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 style="color: var(--teal);">All Products</h4>
+        <div>
+            <a href="/admin/inventory" class="btn btn-sm btn-info me-2">Manage Inventory</a>
+            <a href="/admin/categories" class="btn btn-sm btn-info">Manage Categories</a>
+        </div>
     </div>
 
     <form method="GET" class="mb-3">
-        <select name="category" class="form-control w-25 d-inline">
-            <option value="">All Categories</option>
-            {% for c in categories %}
-            <option value="{{ c.id }}"
-                {% if selected_category == c.id|string %}selected{% endif %}>
-                {{ c.name }}
-            </option>
-            {% endfor %}
-        </select>
-        <button class="btn btn-secondary btn-sm">Filter</button>
+        <div class="row g-2">
+            <div class="col-md-3">
+                <select name="category" class="form-control">
+                    <option value="">All Categories</option>
+                    {% for c in categories %}
+                    <option value="{{ c.id }}"
+                        {% if selected_category == c.id|string %}selected{% endif %}>
+                        {{ c.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button class="btn btn-primary w-100">Filter</button>
+            </div>
+        </div>
     </form>
-    <a href="/admin/inventory"
-        class="btn btn-sm btn-info">
-        Manage Inventory
-    </a>
-
-    <a href="/admin/categories"
-        class="btn btn-sm btn-info">
-        Manage Categories
-    </a>
 
     <!-- PRODUCT TABLE -->
-    <table class="table table-bordered">
-    <thead>
-        <tr>
-        <th width="80">Image</th>
-        <th>Name</th>
-        <th>Price</th>
-        <th>Stock</th>
-        <th>Condition</th>
-        <th>Category</th>
-        <th width="140">Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for p in products %}
-        <tr class="{% if p.stock == 0 %}table-danger{% elif p.stock <= 5 %}table-warning{% endif %}">
-        <td>
-            {% if p.image %}
-                <img src="{{ url_for('static', filename='uploads/products/' ~ p.image) }}"
-                    width="60" height="60"
-                    class="img-thumbnail"
-                    style="object-fit: cover;">
-            {% else %}
-                <span class="text-muted">No Image</span>
-            {% endif %}
-        </td>    
-        <td>{{ p.name }}</td>
-        <td>₱{{ p.price }}</td>
-        <td>
-            {% if p.stock == 0 %}
-                <span class="badge bg-danger">Out of Stock</span>
-            {% elif p.stock <= 5 %}
-                <span class="badge bg-warning text-dark">
-                Low ({{ p.stock }})
-                </span>
-            {% else %}
-                <span class="badge bg-success">
-                {{ p.stock }}
-                </span>
-            {% endif %}
-        </td>
-        <td>{{ p.condition_type }}</td>
-        <td>{{ p.category }}</td>
-        <td>
-    
-            <a href="/admin/products/edit/{{ p.id }}" class="btn btn-sm btn-warning">Edit</a>
-            <a href="/admin/products/delete/{{ p.id }}"
-            class="btn btn-sm btn-danger"
-            onclick="return confirm('Delete this product?')">
-            Delete
-            </a>
-        </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-    </table>
+    <div class="table-responsive">
+        <table class="table table-bordered">
+        <thead class="table-dark">
+            <tr>
+            <th width="80">Image</th>
+            <th>Name</th>
+            <th>Price</th>
+            <th>Stock</th>
+            <th>Condition</th>
+            <th>Category</th>
+            <th width="140">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in products %}
+            <tr class="{% if p.stock == 0 %}table-danger{% elif p.stock <= 5 %}table-warning{% endif %}">
+            <td>
+                {% if p.image %}
+                    <img src="{{ url_for('static', filename='uploads/products/' ~ p.image) }}"
+                        width="60" height="60"
+                        class="img-thumbnail"
+                        style="object-fit: cover; border-radius: 10px;">
+                {% else %}
+                    <span class="text-muted">No Image</span>
+                {% endif %}
+            </td>    
+            <td><strong>{{ p.name }}</strong></td>
+            <td>₱{{ p.price }}</td>
+            <td>
+                {% if p.stock == 0 %}
+                    <span class="badge bg-danger">Out of Stock</span>
+                {% elif p.stock <= 5 %}
+                    <span class="badge bg-warning text-dark">
+                    Low ({{ p.stock }})
+                    </span>
+                {% else %}
+                    <span class="badge bg-success">
+                    {{ p.stock }}
+                    </span>
+                {% endif %}
+            </td>
+            <td>{{ p.condition_type }}</td>
+            <td>{{ p.category }}</td>
+            <td>
+                <a href="/admin/products/edit/{{ p.id }}" class="btn btn-sm btn-warning">Edit</a>
+                <a href="/admin/products/delete/{{ p.id }}"
+                class="btn btn-sm btn-danger"
+                onclick="return confirm('Delete this product?')">
+                Delete
+                </a>
+            </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        </table>
+    </div>
+</div>
+</div>
 {% endblock %}

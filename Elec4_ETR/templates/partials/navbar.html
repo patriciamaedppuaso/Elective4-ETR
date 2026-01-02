@@ -1,6 +1,6 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+<nav class="navbar navbar-expand-lg navbar-custom">
   <div class="container">
-    <a class="navbar-brand" href="/">Digicam Shop</a>
+    <a class="navbar-brand" href="{{ url_for('home') }}">Digicam Shop</a>
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
       <span class="navbar-toggler-icon"></span>
@@ -10,7 +10,7 @@
       <ul class="navbar-nav ms-auto">
 
         <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('admin_products') }}">Products</a>
+          <a class="nav-link" href="{{ url_for('products') }}">Products</a>
         </li>
 
         {% if session.admin_id %}

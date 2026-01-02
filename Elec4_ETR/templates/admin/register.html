@@ -1,25 +1,91 @@
 {% extends "base.html" %}
 
-{% block title %}Admin Register{% endblock %}
+{% block title %}Admin Register - Digicam Shop{% endblock %}
+
+{% block css %}
+<style>
+    /* Hide navbar on admin register */
+    .navbar-custom {
+        display: none !important;
+    }
+    
+    body {
+        background: linear-gradient(135deg, var(--teal), var(--burnt-orange));
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        padding-top: 0 !important;
+    }
+    
+    main {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .login-container {
+        max-width: 500px;
+        width: 100%;
+        margin: 0 auto;
+    }
+    .login-card {
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        border: none;
+    }
+    .login-header {
+        background: linear-gradient(135deg, var(--teal), var(--burnt-orange));
+        color: white;
+        padding: 30px;
+        border-radius: 20px 20px 0 0;
+        text-align: center;
+    }
+    .login-header h4 {
+        margin: 0;
+        font-weight: bold;
+    }
+    .login-body {
+        padding: 40px;
+        background-color: white;
+        border-radius: 0 0 20px 20px;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-  <div class="col-md-5">
-    <div class="card shadow">
-      <div class="card-body">
+<div class="login-container">
+    <div class="card login-card">
+        <div class="login-header">
+            <h4>👤 Create Admin</h4>
+            <p class="mb-0 mt-2">Digicam Shop Administration</p>
+        </div>
+        <div class="login-body">
+            <form method="POST">
+                <div class="mb-3">
+                    <label class="form-label"><strong>Full Name</strong></label>
+                    <input class="form-control" name="fullname" placeholder="Enter full name" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label"><strong>Email</strong></label>
+                    <input class="form-control" name="email" type="email" placeholder="Enter email address" required>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="form-label"><strong>Password</strong></label>
+                    <input class="form-control" name="password" type="password" placeholder="Enter password" required>
+                </div>
 
-        <h4 class="mb-3 text-center">Create Admin</h4>
-
-        <form method="POST">
-          <input class="form-control mb-2" name="fullname" placeholder="Full Name" required>
-          <input class="form-control mb-2" name="email" placeholder="Email" required>
-          <input class="form-control mb-3" name="password" type="password" placeholder="Password" required>
-
-          <button class="btn btn-dark w-100">Register</button>
-        </form>
-
-      </div>
+                <button class="btn btn-primary w-100">Register Admin</button>
+                
+                <p class="text-center mt-3">
+                    Already have an account? <a href="{{ url_for('admin_login') }}" style="color: var(--teal);">Login here</a>
+                </p>
+            </form>
+        </div>
     </div>
-  </div>
 </div>
 {% endblock %}

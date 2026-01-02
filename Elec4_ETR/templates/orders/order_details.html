@@ -1,33 +1,101 @@
 {% extends 'base.html' %}
-{% block title %}Order Details{% endblock %}
+{% block title %}Order Details - Digicam Shop{% endblock %}
+
+{% block css %}
+<style>
+    .order-header {
+        background: linear-gradient(135deg, var(--teal), var(--burnt-orange));
+        color: white;
+        padding: 40px 0;
+        margin: -30px -15px 30px -15px;
+        border-radius: 0 0 20px 20px;
+    }
+    .order-header h3 {
+        color: white;
+        font-size: 2.5rem;
+        margin: 0;
+    }
+    .order-container {
+        background-color: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    .order-info {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 15px;
+        margin-bottom: 25px;
+    }
+    .total-section {
+        background: linear-gradient(135deg, var(--mustard-yellow), var(--burnt-orange));
+        padding: 25px;
+        border-radius: 15px;
+        margin-top: 25px;
+        color: var(--dark-gray);
+        text-align: center;
+    }
+    .total-section h4 {
+        color: var(--dark-gray);
+        font-weight: bold;
+        font-size: 2rem;
+        margin: 0;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<h3>🧾 Order #{{ order.id }}</h3>
+<div class="order-header text-center">
+    <div class="container">
+        <h3>🧾 Order #{{ order.id }}</h3>
+        <p class="mt-2">Order details and information</p>
+    </div>
+</div>
 
-<p>
-    <strong>Status:</strong>
-    <span class="badge bg-secondary">{{ order.status }}</span><br>
-    <strong>Payment:</strong> {{ order.payment_method }}<br>
-    <strong>Date:</strong> {{ order.created_at }}
-</p>
+<div class="container">
+<div class="order-container">
+<div class="order-info">
+    <p class="mb-2">
+        <strong>Status:</strong>
+        <span class="badge 
+            {% if order.status == 'Pending' %}bg-warning text-dark
+            {% elif order.status == 'Shipped' %}bg-info
+            {% elif order.status == 'Delivered' %}bg-success
+            {% else %}bg-secondary{% endif %}">
+            {{ order.status }}
+        </span>
+    </p>
+    <p class="mb-2">
+        <strong>Payment Method:</strong> {{ order.payment_method }}
+    </p>
+    <p class="mb-2">
+        <strong>Order Date:</strong> {{ order.created_at.strftime('%Y-%m-%d %H:%M') if order.created_at else order.created_at }}
+    </p>
+    {% if order.decline_reason%}
+        <p class="mb-0">
+            <strong style="color: red;">Decline Reason:</strong> {{ order.decline_reason }}
+        </p>
+    {% endif %}
+</div>
 
 {% if order.payment_method == 'Online Payment' and order.payment_proof %}
-<div class="card mb-4">
-    <div class="card-header bg-light">
+<div class="card mb-4" style="border-radius: 15px;">
+    <div class="card-header bg-primary text-white" style="border-radius: 15px 15px 0 0;">
         <strong>Proof of Payment</strong>
     </div>
     <div class="card-body text-center">
         <img src="{{ url_for('static',
             filename='uploads/payments/' ~ order.payment_proof) }}"
              class="img-fluid rounded border"
-             style="max-width: 350px;">
-        <p class="text-muted mt-2">Click image to zoom</p>
+             style="max-width: 350px; border-radius: 10px;">
+        <p class="text-muted mt-2">Payment proof image</p>
     </div>
 </div>
 {% endif %}
 
+<div class="table-responsive">
 <table class="table table-bordered">
-    <thead class="table-light">
+    <thead class="table-dark">
         <tr>
             <th>Camera</th>
             <th>Qty</th>
@@ -39,18 +107,25 @@
         {% for i in items %}
             {% set subtotal = i.quantity * i.price %}
             <tr>
-                <td>{{ i.name }}</td>
+                <td><strong>{{ i.name }}</strong></td>
                 <td>{{ i.quantity }}</td>
                 <td>₱{{ i.price }}</td>
-                <td>₱{{ subtotal }}</td>
+                <td><strong>₱{{ subtotal }}</strong></td>
             </tr>
         {% endfor %}
     </tbody>
 </table>
+</div>
 
-<h4>Total: ₱{{ total }}</h4>
+<div class="total-section">
+    <h4>Total: ₱{{ total }}</h4>
+</div>
 
-<a href="{{ url_for('orders') }}" class="btn btn-secondary mt-3">
-    Back to Orders
-</a>
+<div class="text-center mt-4">
+    <a href="{{ url_for('orders') }}" class="btn btn-secondary">
+        ← Back to Orders
+    </a>
+</div>
+</div>
+</div>
 {% endblock %}

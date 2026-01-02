@@ -79,6 +79,10 @@ def login():
 
 @app.route('/')
 def home():
+    return render_template('home.html')
+
+@app.route('/products')
+def products():
     page = request.args.get('page', 1, type=int)
     limit = 20
     offset = (page - 1) * limit
@@ -188,7 +192,7 @@ def add_to_cart(id):
     cur.close()
 
     flash("Added to cart!", "success")
-    return redirect(url_for('home'))
+    return redirect(url_for('products'))
 
 @app.route('/cart')
 def cart():
@@ -338,8 +342,8 @@ def orders():
 
     counts = {
         'Pending': 0,
-        'Shipped': 0,
-        'Delivered': 0
+        'Approved': 0,
+        'Declined': 0
     }
 
     for r in rows:
@@ -980,4 +984,5 @@ def admin_logout():
 
 
 if __name__ == "__main__":
+    
     app.run(debug=True)
