@@ -83,10 +83,11 @@
                 <td><strong>{{ item.name }}</strong></td>
                 <td>
                     <input type="number" name="quantity_{{ item.id }}"
-                        value="{{ item.quantity }}"
-                        min="1"
-                        class="form-control form-control-sm w-50"
-                        {% if item.stock == 0 %} disabled {% endif %}>
+                    value="{{ item.quantity }}"
+                    min="1"
+                    class="form-control form-control-sm w-50"
+                    {% if item.stock == 0 %} disabled {% endif %}>
+
                 </td>
                 <td>₱{{ item.price }}</td>
                 <td><strong>₱{{ item.subtotal }}</strong></td>
@@ -130,18 +131,33 @@ document.getElementById('payment_method').addEventListener('change', function ()
 
 function updateTotal() {
     let total = 0;
-    document.querySelectorAll('.select-item').forEach(cb => {
-        if (cb.checked) {
-            total += parseFloat(cb.dataset.subtotal);
+    document.querySelectorAll('tbody tr').forEach(row => {
+        const checkbox = row.querySelector('.select-item');
+        const qtyInput = row.querySelector('input[type="number"]');
+        const price = parseFloat(row.cells[3].textContent.replace('₱','')) || 0;
+        const subtotalCell = row.cells[4];
+
+        if (qtyInput && checkbox && checkbox.checked) {
+            const qty = parseInt(qtyInput.value);
+            const subtotal = price * qty;
+            subtotalCell.textContent = `₱${subtotal.toFixed(2)}`;
+            total += subtotal;
         }
     });
     document.getElementById('total').textContent = total.toFixed(2);
 }
 
-updateTotal();
-document.querySelectorAll('.select-item').forEach(cb => {
-    cb.addEventListener('change', updateTotal);
+// Update total when checkbox or quantity changes
+document.querySelectorAll('.select-item').forEach(cb => cb.addEventListener('change', updateTotal));
+document.querySelectorAll('input[type="number"]').forEach(input => {
+    input.addEventListener('change', function() {
+        if (this.value < 1) this.value = 1; // minimum 1
+        updateTotal();
+    });
 });
+
+// Initialize total
+updateTotal();
 </script>
 
 {% endblock %}

@@ -5,6 +5,7 @@ import os
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 from exports.sales_export import export_sales_pdf, export_sales_docx
+from datetime import datetime, timedelta
 
 app = Flask(__name__)
 
@@ -166,6 +167,9 @@ def products():
 
 @app.route('/add-to-cart/<int:id>')
 def add_to_cart(id):
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
     user_id = session['user_id']
     cur = mysql.connection.cursor()
 
@@ -281,7 +285,7 @@ def checkout():
     # Get selected cart items
     format_strings = ','.join(['%s'] * len(selected_ids))
     cur.execute(f"""
-        SELECT c.product_id, c.quantity, p.price
+        SELECT c.product_id, c.quantity, p.price, p.stock, p.name
         FROM cart_items c
         JOIN products p ON c.product_id = p.id
         WHERE c.user_id=%s AND c.product_id IN ({format_strings})
@@ -290,26 +294,28 @@ def checkout():
 
     # Insert order items and reduce stock
     for item in cart_items:
-        # Reduce product stock
-        cur.execute("SELECT stock FROM products WHERE id=%s", (item['product_id'],))
-        stock = cur.fetchone()['stock']
-        if stock < item['quantity']:
-            flash(f"Not enough stock for {item['product_id']}.", "danger")
+        # Get quantity from form
+        qty_field = f'quantity_{item["product_id"]}'
+        quantity = int(request.form.get(qty_field, item['quantity']))  # default to DB quantity
+
+        # Check stock
+        if quantity > item['stock']:
+            flash(f"Not enough stock for {item['name']}. Max available: {item['stock']}", "danger")
             return redirect(url_for('cart'))
 
-        new_stock = stock - item['quantity']
+        # Reduce stock
+        new_stock = item['stock'] - quantity
         cur.execute("UPDATE products SET stock=%s WHERE id=%s", (new_stock, item['product_id']))
 
-        # Add to order_items
+        # Insert into order_items
         cur.execute("""
             INSERT INTO order_items(order_id, product_id, quantity, price)
             VALUES(%s,%s,%s,%s)
-        """, (order_id, item['product_id'], item['quantity'], item['price']))
+        """, (order_id, item['product_id'], quantity, item['price']))
 
-        # Remove checked out items from cart
-        cur.execute("""
-            DELETE FROM cart_items WHERE user_id=%s AND product_id=%s
-        """, (user_id, item['product_id']))
+        # Remove from cart
+        cur.execute("""DELETE FROM cart_items WHERE user_id=%s AND product_id=%s""",
+                    (user_id, item['product_id']))
 
     mysql.connection.commit()
     cur.close()
@@ -323,9 +329,8 @@ def orders():
         return redirect(url_for('login'))
 
     user_id = session['user_id']
-    status = request.args.get('status', 'Pending')
+    status = request.args.get('status', 'Processing')
     page = request.args.get('page', 1, type=int)
-
     limit = 10
     offset = (page - 1) * limit
 
@@ -340,33 +345,54 @@ def orders():
     """, (user_id,))
     rows = cur.fetchall()
 
+    # initialize counts
     counts = {
-        'Pending': 0,
-        'Approved': 0,
+        'Processing': 0,  # Pending + Approved
+        'Shipped': 0,
+        'Delivered': 0,
         'Declined': 0
     }
 
+    # fill counts
     for r in rows:
-        if r['status'] in counts:
+        if r['status'] in ['Pending', 'Approved']:
+            counts['Processing'] += r['total']
+        elif r['status'] in counts:
             counts[r['status']] = r['total']
 
-    # Count orders for current tab
-    cur.execute("""
-        SELECT COUNT(*) AS total
-        FROM orders
-        WHERE user_id=%s AND status=%s
-    """, (user_id, status))
+    # Fetch total for pagination
+    if status == "Processing":
+        cur.execute("""
+            SELECT COUNT(*) AS total
+            FROM orders
+            WHERE user_id=%s AND status IN ('Pending', 'Approved')
+        """, (user_id,))
+    else:
+        cur.execute("""
+            SELECT COUNT(*) AS total
+            FROM orders
+            WHERE user_id=%s AND status=%s
+        """, (user_id, status))
     total = cur.fetchone()['total']
     total_pages = (total + limit - 1) // limit
 
     # Fetch paginated orders
-    cur.execute("""
-        SELECT *
-        FROM orders
-        WHERE user_id=%s AND status=%s
-        ORDER BY created_at DESC
-        LIMIT %s OFFSET %s
-    """, (user_id, status, limit, offset))
+    if status == "Processing":
+        cur.execute("""
+            SELECT *
+            FROM orders
+            WHERE user_id=%s AND status IN ('Pending', 'Approved')
+            ORDER BY created_at DESC
+            LIMIT %s OFFSET %s
+        """, (user_id, limit, offset))
+    else:
+        cur.execute("""
+            SELECT *
+            FROM orders
+            WHERE user_id=%s AND status=%s
+            ORDER BY created_at DESC
+            LIMIT %s OFFSET %s
+        """, (user_id, status, limit, offset))
     orders = cur.fetchall()
 
     cur.close()
@@ -593,7 +619,7 @@ def admin_products():
     elif stock_status == 'low':
         base_query += " AND p.stock > 0 AND p.stock <= 5"
 
-    base_query += " ORDER BY p.id DESC"
+    base_query += " ORDER BY c.name, p.name"
 
     if params:
         cur.execute(base_query, params)
@@ -691,11 +717,15 @@ def delete_product(id):
     
     cur = mysql.connection.cursor()
     
-    cur.execute("DELETE FROM products WHERE id=%s", (id,))
-    mysql.connection.commit()
-    cur.close()
+    try:
+        cur.execute("DELETE FROM products WHERE id=%s", (id,))
+        mysql.connection.commit()
+        flash("Product deleted", "success")
+    except:
+        flash("Cannot delete this product because it is linked to other records.", "warning")
+    finally:
+        cur.close()
 
-    flash("Product deleted", "success")
     return redirect(url_for('admin_products'))
 
 # ADMIN INVENTORY MANAGEMENT
@@ -834,8 +864,9 @@ def admin_orders():
         SELECT o.*, u.fullname AS customer_name
         FROM orders o
         JOIN users u ON o.user_id = u.id
-        WHERE o.status IN ('Pending','Approved','Declined')
+        WHERE o.status IN ('Pending','Approved','Shipped','Delivered','Declined')
     """
+
     params = []
 
     if search_query:
@@ -889,8 +920,9 @@ def decline_order(id):
     flash("Order declined", "danger")
     return redirect(url_for('admin_orders'))
 
-@app.route('/admin/order/update/<int:id>/<status>')
-def update_order(id, status):
+@app.route('/admin/order/update/<int:id>', methods=['POST'])
+def update_order(id):
+    status = request.form.get('status')  # get from dropdown
     cur = mysql.connection.cursor()
     cur.execute(
         "UPDATE orders SET status=%s WHERE id=%s",
@@ -900,6 +932,9 @@ def update_order(id, status):
     cur.close()
     flash("Order updated!", "success")
     return redirect(url_for('admin_orders'))
+
+
+from datetime import datetime, timedelta
 
 @app.route('/admin/sales')
 def admin_sales():
@@ -911,36 +946,37 @@ def admin_sales():
 
     cur = mysql.connection.cursor()
 
+    # SQL query based on report type
     if report_type == 'daily':
         query = """
             SELECT DATE(o.created_at) AS period,
                    COUNT(DISTINCT o.id) AS total_orders,
-                   SUM(oi.quantity * oi.price) AS total_sales
+                   COALESCE(SUM(oi.quantity * oi.price), 0) AS total_sales
             FROM orders o
             JOIN order_items oi ON o.id = oi.order_id
-            WHERE o.status IN ('Approved')
+            WHERE o.status IN ('Approved', 'Shipped', 'Delivered')
             GROUP BY DATE(o.created_at)
             ORDER BY period DESC
         """
     elif report_type == 'weekly':
         query = """
-            SELECT YEARWEEK(o.created_at) AS period,
+            SELECT YEARWEEK(o.created_at, 1) AS period,
                    COUNT(DISTINCT o.id) AS total_orders,
-                   SUM(oi.quantity * oi.price) AS total_sales
+                   COALESCE(SUM(oi.quantity * oi.price), 0) AS total_sales
             FROM orders o
             JOIN order_items oi ON o.id = oi.order_id
-            WHERE o.status IN ('Approved')
-            GROUP BY YEARWEEK(o.created_at)
+            WHERE o.status IN ('Approved', 'Shipped', 'Delivered')
+            GROUP BY YEARWEEK(o.created_at, 1)
             ORDER BY period DESC
         """
     else:  # monthly
         query = """
             SELECT DATE_FORMAT(o.created_at, '%Y-%m') AS period,
                    COUNT(DISTINCT o.id) AS total_orders,
-                   SUM(oi.quantity * oi.price) AS total_sales
+                   COALESCE(SUM(oi.quantity * oi.price), 0) AS total_sales
             FROM orders o
             JOIN order_items oi ON o.id = oi.order_id
-            WHERE o.status IN ('Approved')
+            WHERE o.status IN ('Approved', 'Shipped', 'Delivered')
             GROUP BY DATE_FORMAT(o.created_at, '%Y-%m')
             ORDER BY period DESC
         """
@@ -949,9 +985,31 @@ def admin_sales():
     reports = cur.fetchall()
     cur.close()
 
+    # Format period for readability
+    formatted_reports = []
+    for r in reports:
+        period = r['period']
+        if report_type == 'daily':
+            period = datetime.strptime(str(period), "%Y-%m-%d").strftime("%b %d, %Y")  # Jan 07, 2026
+        elif report_type == 'weekly':
+            # period = YEARWEEK, e.g. 202601
+            year = int(str(period)[:4])
+            week = int(str(period)[4:])
+            monday = datetime.strptime(f'{year}-W{week}-1', "%Y-W%W-%w")
+            sunday = monday + timedelta(days=6)
+            period = f"{monday.strftime('%b %d')} – {sunday.strftime('%b %d, %Y')}"
+        else:  # monthly
+            period = datetime.strptime(str(period), "%Y-%m").strftime("%B %Y")  # January 2026
+
+        formatted_reports.append({
+            'period': period,
+            'total_orders': r['total_orders'],
+            'total_sales': r['total_sales']
+        })
+
     return render_template(
         'admin/sales.html',
-        reports=reports,
+        reports=formatted_reports,
         report_type=report_type
     )
 
@@ -965,7 +1023,7 @@ def export_sales():
     format = request.args.get('format', 'pdf')
 
     if report_type == 'weekly':
-        group = "YEARWEEK(o.created_at)"
+        group = "YEARWEEK(o.created_at, 1)"  # Week starts on Monday
     elif report_type == 'monthly':
         group = "DATE_FORMAT(o.created_at, '%Y-%m')"
     else:
@@ -983,13 +1041,36 @@ def export_sales():
         GROUP BY {group}
         ORDER BY {group} DESC
     """)
-    data = cur.fetchall()
+    rows = cur.fetchall()
     cur.close()
 
+    # Format period like in the web table
+    formatted_data = []
+    for r in rows:
+        period = r['period']
+        total_sales = r['total_sales'] if r['total_sales'] is not None else 0  # Handle NULL
+        if report_type == 'daily':
+            period = datetime.strptime(str(period), "%Y-%m-%d").strftime("%b %d, %Y")  # Jan 07, 2026
+        elif report_type == 'weekly':
+            # period = YEARWEEK, e.g. 202601
+            year = int(str(period)[:4])
+            week = int(str(period)[4:])
+            monday = datetime.strptime(f'{year}-W{week}-1', "%Y-W%W-%w")
+            sunday = monday + timedelta(days=6)
+            period = f"{monday.strftime('%b %d')} – {sunday.strftime('%b %d, %Y')}"
+        else:  # monthly
+            period = datetime.strptime(str(period), "%Y-%m").strftime("%B %Y")  # January 2026
+
+        formatted_data.append({
+            'period': period,
+            'total_orders': r['total_orders'],
+            'total_sales': total_sales
+        })
+
     if format == 'pdf':
-        return export_sales_pdf(data)
+        return export_sales_pdf(formatted_data)
     else:
-        return export_sales_docx(data)
+        return export_sales_docx(formatted_data)
     
 @app.route('/admin/users')
 def admin_users():

@@ -64,15 +64,17 @@
       <td>{{ o.customer_name }}</td>
       <td>{{ o.payment_method }}</td>
 
-      <td>
-        <span class="badge
-          {% if o.status == 'Pending' %}bg-warning text-dark
-          {% elif o.status == 'Approved' %}bg-success
-          {% elif o.status == 'Declined' %}bg-danger
-          {% endif %}">
-          {{ o.status }}
-        </span>
-      </td>
+    <td>
+  <span class="badge
+    {% if o.status == 'Pending' %}bg-warning text-dark
+    {% elif o.status == 'Approved' %}bg-success
+    {% elif o.status == 'Shipped' %}bg-primary
+    {% elif o.status == 'Delivered' %}bg-success
+    {% elif o.status == 'Declined' %}bg-danger
+    {% endif %}">
+    {{ o.status }}
+  </span>
+</td>
 
       <td>
         {% if o.status == 'Declined' %}
@@ -82,22 +84,30 @@
         {% endif %}
       </td>
 
-      <td>
-        {% if o.status == 'Pending' %}
-          <a href="{{ url_for('approve_order', id=o.id) }}"
-             class="btn btn-sm btn-success">
-            Approve
-          </a>
+<td>
+  <form method="POST" action="{{ url_for('update_order', id=o.id) }}" class="d-inline">
+    <select name="status" class="form-select d-inline w-100" onchange="this.form.submit()">
+      <option value="" selected disabled>Action</option>
 
-          <button class="btn btn-sm btn-danger"
-                  data-bs-toggle="modal"
-                  data-bs-target="#declineModal{{ o.id }}">
-            Decline
-          </button>
-        {% else %}
-          <em class="text-muted">No actions</em>
-        {% endif %}
-      </td>
+      {% if o.status == 'Pending' %}
+        <option value="Approved">Approve</option>
+      {% elif o.status == 'Approved' %}
+        <option value="Shipped">Shipped</option>
+      {% elif o.status == 'Shipped' %}
+        <option value="Delivered">Delivered</option>
+      {% endif %}
+    </select>
+  </form>
+  <div>
+  {% if o.status in ['Pending', 'Approved'] %}
+    <button type="button" class="btn btn-sm btn-danger w-100" data-bs-toggle="modal" data-bs-target="#declineModal{{ o.id }}">
+      Decline
+    </button>
+  {% endif %}
+  </div>
+</td>
+
+
     </tr>
     {% endfor %}
   </tbody>

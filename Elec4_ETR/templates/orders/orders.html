@@ -61,38 +61,36 @@
 <div class="container">
 <div class="orders-container">
 <!-- Status Tabs -->
+<!-- Status Tabs -->
 <ul class="nav nav-tabs mb-4">
-
     <li class="nav-item">
-        <a class="nav-link {% if status == 'Pending' %}active{% endif %}"
-           href="{{ url_for('orders', status='Pending') }}">
-            Pending
-            <span class="badge bg-secondary ms-1">
-                {{ counts.Pending }}
-            </span>
+        <a class="nav-link {% if status in ['Pending', 'Approved'] %}active{% endif %}"
+           href="{{ url_for('orders', status='Processing') }}">
+            Processing
+            <span class="badge bg-secondary ms-1">{{ counts.Processing }}</span>
         </a>
     </li>
-
     <li class="nav-item">
-        <a class="nav-link {% if status == 'Approved' %}active{% endif %}"
-           href="{{ url_for('orders', status='Approved') }}">
-            Approved
-            <span class="badge bg-secondary ms-1">
-                {{ counts.Approved }}
-            </span>
+        <a class="nav-link {% if status == 'Shipped' %}active{% endif %}"
+           href="{{ url_for('orders', status='Shipped') }}">
+            Shipped
+            <span class="badge bg-secondary ms-1">{{ counts.Shipped }}</span>
         </a>
     </li>
-
+    <li class="nav-item">
+        <a class="nav-link {% if status == 'Delivered' %}active{% endif %}"
+           href="{{ url_for('orders', status='Delivered') }}">
+            Delivered
+            <span class="badge bg-secondary ms-1">{{ counts.Delivered }}</span>
+        </a>
+    </li>
     <li class="nav-item">
         <a class="nav-link {% if status == 'Declined' %}active{% endif %}"
            href="{{ url_for('orders', status='Declined') }}">
             Declined    
-            <span class="badge bg-secondary ms-1">
-                {{ counts.Declined }}
-            </span>
+            <span class="badge bg-secondary ms-1">{{ counts.Declined }}</span>
         </a>
     </li>
-
 </ul>
 
 
@@ -113,14 +111,19 @@
             <td><strong>#{{ o.id }}</strong></td>
             <td>{{ o.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
             <td>{{ o.payment_method }}</td>
-            <td>
-                <span class="badge
-                    {% if o.status == 'Pending' %}bg-warning
-                    {% elif o.status == 'Approved' %}bg-success
-                    {% else %}bg-danger{% endif %}">
-                    {{ o.status }}
-                </span>
-            </td>
+           <td>
+  <span class="badge
+      {% if o.status == 'Pending' %}bg-warning
+      {% elif o.status == 'Approved' %}bg-primary
+      {% elif o.status == 'Shipped' %}bg-info
+      {% elif o.status == 'Delivered' %}bg-success
+      {% elif o.status == 'Declined' %}bg-danger
+      {% else %}bg-secondary{% endif %}">
+      {{ o.status }}
+  </span>
+</td>
+
+
             <td>
                 <a href="{{ url_for('order_details', id=o.id) }}"
                    class="btn btn-sm btn-outline-dark">

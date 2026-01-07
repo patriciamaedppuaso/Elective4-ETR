@@ -7,35 +7,51 @@
     </button>
 
     <div class="collapse navbar-collapse" id="nav">
-      <ul class="navbar-nav ms-auto">
+<ul class="navbar-nav ms-auto">
 
-        <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('products') }}">Products</a>
-        </li>
+  {% if not session.admin_id %}
+    <li class="nav-item">
+      <a class="nav-link" href="{{ url_for('products') }}">Products</a>
+    </li>
+  {% endif %}
 
-        {% if session.admin_id %}
-          <li class="nav-item">
-            <a class="nav-link" href="/admin/dashboard">Admin</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/admin/logout">Logout</a>
-          </li>
+  {% if session.admin_id %}
+    <li class="nav-item">
+      <a class="nav-link" href="/admin/dashboard">Dashboard</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="/admin/logout">Logout</a>
+    </li>
 
-        {% elif session.user_id %}
-          <li class="nav-item">
-            <a class="nav-link" href="/orders">My Orders</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/logout">Logout</a>
-          </li>
+  {% elif session.user_id %}
+    <li class="nav-item">
+      <a class="nav-link" href="/orders">My Orders</a>
+    </li>
 
-        {% else %}
-          <li class="nav-item">
-            <a class="nav-link" href="/login">Login</a>
-          </li>
+    <!-- Cart Icon -->
+    <li class="nav-item">
+      <a class="nav-link position-relative" href="{{ url_for('cart') }}">
+        <i class="bi bi-cart"></i>
+        {% if session.get('cart_count') %}
+          <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+            {{ session['cart_count'] }}
+            <span class="visually-hidden">items in cart</span>
+          </span>
         {% endif %}
+      </a>
+    </li>
 
-      </ul>
+    <li class="nav-item">
+      <a class="nav-link" href="/logout">Logout</a>
+    </li>
+
+  {% else %}
+    <li class="nav-item">
+      <a class="nav-link" href="/login">Login</a>
+    </li>
+  {% endif %}
+
+</ul>
     </div>
   </div>
 </nav>
